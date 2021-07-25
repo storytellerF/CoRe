@@ -5,11 +5,12 @@
     <title>show</title>
 </head>
 <body>
-    <ol id="list" th:each="item :${list}">
-        <li>
+    <ol>
+        <li th:each="item :${list}">
             <div>
                 <p th:text="${item.title}">loading</p>
                 <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}">删除</a>
+                <a th:href="'/edit?id='+${item.id}">修改</a>
                 <div class="code" data-th-code="${item.codeContent}"></div>
             </div>
         </li>

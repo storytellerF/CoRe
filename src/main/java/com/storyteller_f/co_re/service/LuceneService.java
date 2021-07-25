@@ -3,8 +3,10 @@ package com.storyteller_f.co_re.service;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -91,7 +93,7 @@ public class LuceneService {
         }
     }
 
-    public TopDocs search(String search) {
+    public List<CodeSnippet> search(String search) {
         DirectoryReader reader = null;
         try {
             FSDirectory directory = FSDirectory.open(path);
@@ -99,7 +101,16 @@ public class LuceneService {
             IndexSearcher indexSearcher = new IndexSearcher(reader);
             QueryParser queryParser = new QueryParser("title", analyzer);
             Query parse = queryParser.parse(search);
-            return indexSearcher.search(parse, 10);
+            TopDocs search1 = indexSearcher.search(parse, 10);
+            return Arrays.stream(search1.scoreDocs).map(scoreDoc -> {
+                try {
+                    Document doc = indexSearcher.doc(scoreDoc.doc);
+                    return CodeSnippet.to(doc, scoreDoc.doc);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }).collect(Collectors.toList());
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         } finally {
@@ -140,4 +151,18 @@ public class LuceneService {
         }
     }
 
+    public Document get(int id) {
+        DirectoryReader reader = null;
+        try {
+            FSDirectory directory = FSDirectory.open(path);
+            reader = DirectoryReader.open(directory);
+            IndexSearcher indexSearcher = new IndexSearcher(reader);
+            return indexSearcher.doc(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(reader);
+        }
+        return null;
+    }
 }
