@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>show</title>
+</head>
+<body>
+    <ol id="list" th:each="item :${list}">
+        <li>
+            <div>
+                <p th:text="${item.title}">loading</p>
+                <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}">删除</a>
+                <div class="code" data-th-code="${item.codeContent}"></div>
+            </div>
+        </li>
+
+    </ol>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        window.onload=function () {
+            const elementsByClassName = document.getElementsByClassName("code");
+            for (let i = 0; i < elementsByClassName.length; i++) {
+                var elementsByClassNameElement = elementsByClassName[i];
+                elementsByClassNameElement.innerHTML=marked(elementsByClassNameElement.getAttribute("code"))
+            }
+        }
+
+    </script>
+</body>
+</html>
