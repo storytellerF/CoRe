@@ -5,27 +5,36 @@
     <title>show</title>
 </head>
 <body>
-    <ol>
-        <li th:each="item :${list}">
-            <div>
-                <p th:text="${item.title}">loading</p>
-                <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}">删除</a>
-                <a th:href="'/edit?id='+${item.id}">修改</a>
-                <div class="code" data-th-code="${item.codeContent}"></div>
-            </div>
-        </li>
+<ol>
+    <li th:each="item :${list}">
+        <div>
+            <p th:text="${item.title}">loading</p>
+            <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}">删除</a>
+            <a th:href="'/edit?id='+${item.id}">修改</a>
+            <div class="code" data-th-code="${item.codeContent}"></div>
+        </div>
+    </li>
 
-    </ol>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        window.onload=function () {
-            const elementsByClassName = document.getElementsByClassName("code");
-            for (let i = 0; i < elementsByClassName.length; i++) {
-                var elementsByClassNameElement = elementsByClassName[i];
-                elementsByClassNameElement.innerHTML=marked(elementsByClassNameElement.getAttribute("code"))
-            }
+</ol>
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    marked.setOptions({
+        highlight: function (code, lang, callback) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, {language}).value;
         }
+    });
+    window.onload = function () {
+        const elementsByClassName = document.getElementsByClassName("code");
+        for (let i = 0; i < elementsByClassName.length; i++) {
+            var elementsByClassNameElement = elementsByClassName[i];
+            elementsByClassNameElement.innerHTML = marked(elementsByClassNameElement.getAttribute("code"))
+        }
+    }
 
-    </script>
+</script>
 </body>
 </html>
