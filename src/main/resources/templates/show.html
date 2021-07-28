@@ -3,23 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>show</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
 </head>
 <body>
-<ol>
-    <li th:each="item :${list}">
-        <div>
-            <p th:text="${item.title}">loading</p>
-            <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}">删除</a>
-            <a th:href="'/edit?id='+${item.id}">修改</a>
-            <div class="code" data-th-code="${item.codeContent}"></div>
-        </div>
-    </li>
+<p>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target=".collapseExample"
+            aria-expanded="false" aria-controls="collapse">
+        切换
+    </button>
+</p>
 
-</ol>
-<link rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css">
+<div class="">
+    <ol class="list-group">
+        <li th:each="item :${list}" class="list-group-item">
+            <div>
+                <p style="font-weight: bold" th:text="${item.title}">loading</p>
+                <a data-th-id="${item.id}" th:href="'/delete?id='+${item.id}" role="link" class="btn btn-link">删除</a>
+                <a th:href="'/edit?id='+${item.id}" class="btn btn-link" role="link">修改</a>
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                        data-th-data-bs-target="'#code'+${item.id}" aria-expanded="false"
+                        aria-controls="collapse">
+                    切换
+                </button>
+                <button type="button" class="btn btn-primary copy">复制</button>
+                <div class="collapse collapseExample" th:id="'code'+${item.id}">
+                    <div class="code" data-th-code="${item.codeContent}"></div>
+                </div>
+            </div>
+        </li>
+    </ol>
+</div>
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css">
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
 <script>
     marked.setOptions({
         highlight: function (code, lang, callback) {
@@ -27,10 +52,24 @@
             return hljs.highlight(code, {language}).value;
         }
     });
+    new ClipboardJS('.copy', {
+        text: function (trigger) {
+            return trigger.nextSibling.nextSibling.firstChild.nextSibling.getAttribute('code');
+        },
+    });
+
+    const elementsByClassName1 = document.getElementsByClassName("copy");
+    for (let elementsByClassName1Element of elementsByClassName1) {
+        elementsByClassName1Element.onclick = function () {
+            const text = this.nextSibling.nextSibling.firstChild.nextSibling.getAttribute("code");
+            console.log(text)
+        }
+    }
+
     window.onload = function () {
         const elementsByClassName = document.getElementsByClassName("code");
         for (let i = 0; i < elementsByClassName.length; i++) {
-            var elementsByClassNameElement = elementsByClassName[i];
+            const elementsByClassNameElement = elementsByClassName[i];
             elementsByClassNameElement.innerHTML = marked(elementsByClassNameElement.getAttribute("code"))
         }
     }

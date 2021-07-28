@@ -6,3 +6,5 @@ spring:
     cache: false  #是否使用缓存
     mode: HTML  #严格的HTML语法模式
     suffix: .html  #后缀名
+app:
+  lucenePosition: E:\测试\CoRe\index

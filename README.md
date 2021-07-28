@@ -11,3 +11,17 @@
 效果
 
 ![img.png](img.png)
+
+## 使用Docker
+
+创建镜像
+
+```shell
+$ docker build -t CoRe:1.0 .
+```
+
+启动镜像
+
+```shell
+$ docker run -it -p 9000:8080 -v "{your path}:/root/CoRe/index" app.lucenePosition=/root/CoRe/index
+```
