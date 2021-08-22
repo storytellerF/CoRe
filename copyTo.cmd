@@ -1,0 +1,1 @@
+copy build/libs/ "d:/web 服务/CoRe/

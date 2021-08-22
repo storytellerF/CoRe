@@ -1,4 +1,4 @@
-<html lang="cn">
+<html lang="cn" xmlns:th="http://www.thymeleaf.org">
 <title>
     添加
 </title>
@@ -6,31 +6,71 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
 <body>
-<form action="/add" method="post">
-    <div class="mb-3">
-        <label for="core-title" class="form-label">Email address</label>
-        <input type="email" name="title" class="form-control" id="core-title" placeholder="">
-    </div>
-    <div class="row">
-        <div class="col">
-            <label for="core-content" class="form-label">Example textarea</label>
-            <textarea name="code" class="form-control" id="core-content" rows="3" ></textarea>
+<div th:include="nav::nav"></div>
+<div class="container">
+    <form method="post" th:action='${item.id!=-1?"/edit":"/add"}'>
+        <input type="hidden" name="id" th:value="${item.id}">
+        <div class="mb-3">
+            <label for="core-title" class="form-label">标题</label>
+            <input type="text" name="title" th:value="${item.title}" class="form-control" id="core-title" placeholder="">
         </div>
-        <div class="col">
-            <label>Preview</label>
-            <div id="preview" style="border: aquamarine 1px solid"></div>
+        <div class="row">
+            <div class="col">
+                <label for="core-content" class="form-label">内容</label>
+                <textarea name="code" class="form-control" th:text="${item.codeContent}" id="core-content" rows="3"
+                          style="font-size: 20px"></textarea>
+            </div>
+            <div class="col">
+                <label class="form-label">Preview</label>
+                <div id="preview"  style="border: gray 4px solid"></div>
+            </div>
         </div>
-    </div>
-
-
-    <input type="submit" class="btn btn-primary">
-</form>
+        <input type="submit" class="btn btn-primary">
+    </form>
+</div>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-    let preview=document.getElementById("preview")
-    document.getElementById("core-content").onkeyup=function (){
+    marked.setOptions({
+        highlight: function (code, lang, callback) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, {language}).value;
+        }
+    });
+    var coreContent = document.getElementById("core-content");
+    console.log('height', coreContent.style.lineHeight)
+    let lineHeight=coreContent.style.fontSize
+    let lineHeightNumber = Number.parseInt(lineHeight.substring(0,lineHeight.indexOf("px")));
+    function adjust() {
+        let count = 0
+        while (true) {
+            let x = coreContent.clientHeight + coreContent.offsetTop - document.body.clientHeight;
+            if (Math.abs(x) <= lineHeightNumber * 4) break
+            if (count++ >= 50) {
+                return
+            }
+            let newRows;
+            const number = Number.parseInt(coreContent.getAttribute("rows"));
+            if (x > 0) {
+                newRows = number - 1;
+            } else {
+                newRows = number + 1;
+            }
+            console.log('newRows', newRows)
+            coreContent.setAttribute("rows", newRows);
+        }
+    }
+
+    window.onresize = function () {
+        console.log(document.body.clientHeight)
+        adjust();
+    }
+    adjust()
+    let preview = document.getElementById("preview")
+    coreContent.onkeyup = function () {
         console.log(this.value)
-        preview.innerHTML=marked(this.value)
+        preview.innerHTML = marked(this.value)
     }
 </script>
 </body>
