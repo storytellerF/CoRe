@@ -19,7 +19,8 @@ public class IndexController {
 		return "index";
 	}
 	@GetMapping("add")
-	public String add() {
+	public String add(Model model) {
+		model.addAttribute("item", new CodeSnippet("", "", null, -1));
 		return "add";
 	}
 	@GetMapping("/all")
@@ -37,6 +38,6 @@ public class IndexController {
 	public String edit(int id,Model model) {
 		Document indexableFields = service.get(id);
 		model.addAttribute("item", CodeSnippet.to(indexableFields,id));
-		return "edit";
+		return "add";
 	}
 }
