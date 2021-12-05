@@ -26,4 +26,6 @@ $ docker build -t CoRe:1.0 .
 
 ```shell
 $ docker run -it -p 9000:8080 -v "{your path}:/root/CoRe/index" app.lucenePosition=/root/CoRe/index
+# 后面的参数是用来重新指定lucene 的所以文件存放位置，因为开发环境为Windows ，默认路径为`E:\测试\CoRe\index`,
+#可以根据自己的需要修改
 ```

@@ -63,7 +63,7 @@
         const elementsByClassName = document.getElementsByClassName("code");
         for (let i = 0; i < elementsByClassName.length; i++) {
             const elementsByClassNameElement = elementsByClassName[i];
-            elementsByClassNameElement.innerHTML = marked(elementsByClassNameElement.getAttribute("code"))
+            elementsByClassNameElement.innerHTML = marked.parse(elementsByClassNameElement.getAttribute("code"))
         }
     }
 
