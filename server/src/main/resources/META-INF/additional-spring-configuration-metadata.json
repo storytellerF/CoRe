@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "app.lucenePosition",
+      "type": "java.lang.String",
+      "description": "Description for app.lucenePosition."
+    }
+  ]
+}

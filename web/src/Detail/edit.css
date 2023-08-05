@@ -1,0 +1,19 @@
+#core-content {
+    height: calc(100vh - 250px);
+}
+
+#preview {
+    overflow: auto;
+    height: calc(100vh - 250px);
+    border: gray 1px solid;
+    border-radius: 0.25rem;
+    padding: 6px 12px;
+}
+
+#save-core {
+    padding-top: 10px;
+}
+
+pre {
+    padding-right: 0;
+}

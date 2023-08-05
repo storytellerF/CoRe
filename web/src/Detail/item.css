@@ -1,0 +1,22 @@
+pre {
+    padding: 20px 60px 20px 20px;
+    overflow: auto;
+}
+
+button.copy-code-block {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.code p {
+    word-break: break-word;
+}
+
+.snippet-action {
+    padding-bottom: 10px;
+}
+
+.pre-wrapper {
+    background-color: #f3f3f3;
+}
