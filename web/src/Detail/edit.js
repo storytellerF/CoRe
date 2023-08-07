@@ -4,60 +4,105 @@ import "./edit.css"
 import iziToast from "izitoast";
 import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
+function resolveCurrentLine(lines, cursorPosition) {
 
-function shiftTabOneLine(content, start) {
-
-    const lines = content.split("\n")
-    let currentLine = 0
-    let sum = 0
-    for (; currentLine < lines.length; currentLine++) {
-        sum += lines[currentLine].length + 1
-        if (sum > start) {
+    let currentLineNumber = 0
+    let currentLineEnd = 0
+    for (; currentLineNumber < lines.length; currentLineNumber++) {
+        currentLineEnd += lines[currentLineNumber].length + 1
+        if (currentLineEnd > cursorPosition) {
             break
         }
     }
-    const currentContent = lines[currentLine]
-    const hasTab = currentContent.startsWith("\t")
-    let spaceCount = 0
+    const currentLineLength = lines[currentLineNumber].length
+    const currentLineStart = currentLineEnd - currentLineLength - 1
 
-    for (let i = 0; i < currentContent.length && i < 4; i++) {
-        if (currentContent[i] === ' ') spaceCount++
-        else break
+    return {
+        currentLineNumber,
+        "currentLineContent": lines[currentLineNumber],
+        currentLineLength,
+        currentLineStart,
+        currentLineEnd,
     }
+}
 
-    const currentLineStart = sum - lines[currentLine].length - 1
-    const above = content.substring(0, currentLineStart)
-    const rest = content.substring(currentLineStart)
-    let result
+function shiftTabSingleLine(content, start) {
+    const lines = content.split("\n")
+
+    const lineGroup = resolveCurrentLine(lines, start)
+    const currentContent = lineGroup.currentLineContent;
+
+    var { newLine, spaceCount } = shiftTab(currentContent);
+
+    lines[lineGroup.currentLineNumber] = newLine
+    let result = {
+        value: lines.join("\n"),
+        start: start - spaceCount,
+        end: start - spaceCount
+    };
+
+    return result;
+}
+
+function shiftTab(currentContent) {
+    let spaceCount = 0;
+    const hasTab = currentContent.startsWith("\t");
     if (hasTab) {
-        result = {
-            value: above + rest.substring(1),
-            start,
-            end: start
-        }
-    } else if (spaceCount > 0) {
-        result = {
-            value: above + rest.substring(spaceCount),
-            start,
-            end: start
+        spaceCount = 1;
+    } else {
+        for (let i = 0; i < currentContent.length && i < 4; i++) {
+            if (currentContent[i] === ' ') spaceCount++;
+            else break;
         }
     }
-    return result
+    const newLine = currentContent.substring(spaceCount);
+    return { newLine, spaceCount };
+}
+
+function shiftTabMultiLine(content, start, end) {
+    const lines = content.split("\n")
+
+    const startGroup = resolveCurrentLine(lines, start)
+    const endGroup = resolveCurrentLine(lines, end)
+    console.log(startGroup)
+    console.log(endGroup)
+    let startOffset
+    let endOffset = 0
+    if (startGroup.currentLineNumber !== endGroup.currentLineNumber) {
+        for (let i = startGroup.currentLineNumber; i <= endGroup.currentLineNumber; i++) {
+            var { newLine, spaceCount } = shiftTab(lines[i])
+            lines[i] = newLine
+            if (i == startGroup.currentLineNumber) {
+                startOffset = spaceCount
+            }
+            endOffset += spaceCount
+        }
+    }
+    return {
+        value: lines.join("\n"),
+        start: start - startOffset,
+        end: end - endOffset
+    }
 }
 
 function handleTab(start, end, tempValue, inputShift) {
     let result
-    if (!inputShift) {
-        const before = tempValue.substring(0, start)
-        const after = tempValue.substring(end)
+    if (start === end) {
+        if (!inputShift) {
+            const before = tempValue.substring(0, start)
+            const after = tempValue.substring(end)
 
-        result = {
-            value: before + "\t" + after,
-            start: start + 1,
-            end: start + 1
+            result = {
+                value: before + "\t" + after,
+                start: start + 1,
+                end: start + 1
+            }
+        } else if (start === end) {
+            result = shiftTabSingleLine(tempValue, start)
         }
-    } else if (start === end) {
-        result = shiftTabOneLine(tempValue, start)
+    } else {
+        if (inputShift)
+            result = shiftTabMultiLine(tempValue, start, end)
     }
     return result
 }
@@ -103,13 +148,12 @@ function Editor({ marked }) {
         let canceled = false
         if (id !== null) {
             fetch(constants.API_BASE_URL + "/get?id=" + id).then((response) => response.json()).then((data) => {
+
+                if (canceled) return
                 if (process.env.NODE_ENV === 'development') {
                     // 在开发状态下执行的代码
                     console.log(data)
-                } else {
-                    // 在生产状态下执行的代码
                 }
-                if (canceled) return
                 updateTitle(data.title)
                 updateContent(data.codeContent)
             }).catch((error) => console.log(error))
@@ -168,15 +212,15 @@ function Editor({ marked }) {
         let postLink
         if (id != null) postLink = "/edit"
         else postLink = "/add"
-        fetch(constants.API_BASE_URL+ postLink, {
+        fetch(constants.API_BASE_URL + postLink, {
             method: "post",
             body: formData
         }).then((response) => {
             console.log(response)
             if (response.status === 200) {
-               return response.text()
+                return response.text()
             } else {
-               return Promise.reject(response.status + " " + response.statusText)
+                return Promise.reject(response.status + " " + response.statusText)
             }
         }).then((data) => {
             iziToast.show({
