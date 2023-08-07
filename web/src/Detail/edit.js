@@ -89,21 +89,19 @@ function Editor({ marked }) {
             const tempValue = input.value
             let result = handleTab(start, end, tempValue, inputShift)
             console.log(result)
-            if (result != undefined) {
+            if (result !== undefined) {
                 updateContent(result.value)
                 updateNextSelection({
                     start: result.start,
                     end: result.end
                 })
             }
-
         }
     }
 
-    let canceled
     useEffect(() => {
-        canceled = false
-        if (id != null) {
+        let canceled = false
+        if (id !== null) {
             fetch(constants.API_BASE_URL + "/get?id=" + id).then((response) => response.json()).then((data) => {
                 if (process.env.NODE_ENV === 'development') {
                     // 在开发状态下执行的代码
@@ -119,19 +117,17 @@ function Editor({ marked }) {
         return () => {
             canceled = false
         }
-    }, [id])
-    let renderCanceled
+    }, [id, constants.API_BASE_URL])
     useEffect(() => {
-        renderCanceled = false
+        let renderCanceled = false
         const temp = marked.parse(content)
         if (!renderCanceled) updateRender(temp)
         return () => {
             renderCanceled = true
         }
-    }, [content])
-    let selectionCanceled
+    }, [content, marked])
     useEffect(() => {
-        selectionCanceled = false
+        let selectionCanceled = false
         let timer
         if (nextSelection != null) {
             timer = setTimeout(() => {
@@ -148,7 +144,7 @@ function Editor({ marked }) {
     }, [nextSelection])
     const handleSubmit = (event) => {
         event.preventDefault()
-        if (content.length == 0) {
+        if (content.length === 0) {
             iziToast.show({
                 color: "red",
                 title: "content is empty",
@@ -156,7 +152,7 @@ function Editor({ marked }) {
             })
             return
         }
-        if (title.length == 0) {
+        if (title.length === 0) {
             iziToast.show({
                 color: "red",
                 title: "title is empty",
@@ -177,7 +173,7 @@ function Editor({ marked }) {
             body: formData
         }).then((response) => {
             console.log(response)
-            if (response.status == 200) {
+            if (response.status === 200) {
                return response.text()
             } else {
                return Promise.reject(response.status + " " + response.statusText)

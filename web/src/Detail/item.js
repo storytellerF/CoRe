@@ -62,10 +62,10 @@ function Snippet({ item, marked, notifyRefresh }) {
         }
 
         updateRender(domElement.innerHTML)
-    }, [])
+    }, [item.codeContent, marked])
     const handleDelete = () => {
         fetch(constants.API_BASE_URL + herf).then((response) => {
-            if (response.status == 200) {
+            if (response.status === 200) {
                 return response.text()
             } else {
                 return Promise.reject(new Error(response.status + ' ' + response.statusText));

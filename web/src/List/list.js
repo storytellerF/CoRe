@@ -6,7 +6,18 @@ import iziToast from 'izitoast';
 import "izitoast/dist/css/iziToast.css"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import Pagination from "./pagination";
-import useAbortableEffect from "../Hooks/AbortableEffect";
+
+const globalClickListener = function(event) {
+    const target = event.target
+    if (target.className.indexOf("copy-code-block") >= 0) {
+        ClipboardJS.copy(target.nextSibling.firstChild.innerText)
+        iziToast.show({
+            title: 'copied',
+            color: 'green',
+            position: 'center'
+        })
+    }
+}
 
 function List({marked, word}) {
     const [state, updateState] = useState(null)
@@ -15,34 +26,28 @@ function List({marked, word}) {
     const constants = useContext(ConstantsContext)
     const [page, updatePage] = useState(1)
     const count = constants.MAX_ITEMS
-    useAbortableEffect((signal)=> {
+    useEffect(()=> {
+        const abortController = new AbortController();
+        let canceled = false
         updateLoadingState('loading')
         const response = fetch(`${constants.API_BASE_URL}/search?word=${word}&start=${(page - 1) * count}&count=${count}`, {
-            signal
+            signal: abortController.signal
         })
         response.then((response) => response.json()).then((data) => {
+            if (canceled) return
             updateState(data)
             updateLoadingState(null)
         }).catch((error) => {
             console.error(error)
             updateLoadingState(error.message)
         })
-        const globalClickListener = function(event) {
-            const target = event.target
-            if (target.className.indexOf("copy-code-block") >= 0) {
-                ClipboardJS.copy(target.nextSibling.firstChild.innerText)
-                iziToast.show({
-                    title: 'copied',
-                    color: 'green',
-                    position: 'center'
-                })
-            }
-        }
+        
         document.addEventListener('click', globalClickListener)
         return () => {
+            canceled = true
             document.removeEventListener('click', globalClickListener)
         }
-    }, [refreshIndex, page])
+    }, [refreshIndex, page, constants.API_BASE_URL, count, word])
     
     const notifyRefresh = () => {
         console.log('notifyRefresh', refreshIndex)
@@ -60,7 +65,7 @@ function List({marked, word}) {
         result = <div className="loading">
             <p>{loadingState}</p>
         </div> 
-    } else if (state.data.length == 0) {
+    } else if (state.data.length === 0) {
         result = <div className="loading">
             <p>empty</p>
         </div>
