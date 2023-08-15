@@ -7,6 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import { Marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
+import mermaid from 'mermaid'
 
 import {
   createBrowserRouter,
@@ -26,8 +27,17 @@ const marked = new Marked(
     }
   })
 );
-marked.setOptions({ headerIds: false, mangle: false, gfm: true, breaks: true })
+const renderer = new marked.Renderer();
+renderer.code = function (code, language) {
+  if (code.match(/^sequenceDiagram/) || code.match(/^graph/)) {
+    return '<pre class="mermaid">' + code + '</pre>';
+  } else {
+    return '<pre><code>' + code + '</code></pre>';
+  }
+};
 
+marked.setOptions({ headerIds: false, mangle: false, gfm: true, breaks: true, renderer })
+mermaid.initialize({ startOnLoad: false });
 const router = createBrowserRouter([
   {
     path: "/",

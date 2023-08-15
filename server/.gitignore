@@ -37,3 +37,4 @@ out/
 .vscode/
 .DS_Store
 /test_index
+nohup.out

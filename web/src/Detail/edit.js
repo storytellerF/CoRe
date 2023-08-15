@@ -4,6 +4,7 @@ import "./edit.css"
 import iziToast from "izitoast";
 import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
+import mermaid from "mermaid";
 function resolveCurrentLine(lines, cursorPosition) {
 
     let currentLineNumber = 0
@@ -157,6 +158,9 @@ function Editor({ marked }) {
                 updateTitle(data.title)
                 updateContent(data.codeContent)
             }).catch((error) => console.log(error))
+        } else {
+            updateTitle("")
+            updateContent("")
         }
         return () => {
             canceled = false
@@ -170,6 +174,14 @@ function Editor({ marked }) {
             renderCanceled = true
         }
     }, [content, marked])
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            mermaid.run()
+        }, 200);
+        return () => {
+            clearTimeout(timer)
+        }
+    }, [rendered])
     useEffect(() => {
         let selectionCanceled = false
         let timer
@@ -238,6 +250,7 @@ function Editor({ marked }) {
         })
     }
     useEffect(() => {
+        if (title == "" || content == "") return
         storage.set("draft", {
             title,
             content
