@@ -29,17 +29,26 @@ function List({marked, word}) {
     useEffect(()=> {
         const abortController = new AbortController();
         let canceled = false
-        updateLoadingState('loading')
+        updateLoadingState({
+            loading: true,
+            error: null,
+        })
         const response = fetch(`${constants.API_BASE_URL}/search?word=${word}&start=${(page - 1) * count}&count=${count}`, {
             signal: abortController.signal
         })
         response.then((response) => response.json()).then((data) => {
             if (canceled) return
             updateState(data)
-            updateLoadingState(null)
+            updateLoadingState({
+                loading: false,
+                error: null,
+            })
         }).catch((error) => {
             console.error(error)
-            updateLoadingState(error.message)
+            updateLoadingState({
+                loading: false,
+                error: error.message,
+            })
         })
         
         document.addEventListener('click', globalClickListener)
@@ -57,17 +66,23 @@ function List({marked, word}) {
         updatePage(page)
     }
     let result
-    if (state == null && loadingState == null) {
+    if (loadingState == null) {
         result = <div className="loading">
             <p>初始化中</p>
         </div> 
-    } else if (loadingState != null) {
+    } else if (loadingState.error != null) {
         result = <div className="loading">
-            <p>{loadingState}</p>
+            <p>{loadingState.error}</p>
+            <button onClick={notifyPageChange}>refresh</button>
         </div> 
-    } else if (state.data.length === 0) {
+    } else if (loadingState.loading || state == null) {
+        result = <div className="loading">
+            <p>loading</p>
+        </div> 
+    } else  if (state.data.length === 0) {
         result = <div className="loading">
             <p>empty</p>
+            <button onClick={notifyPageChange}>refresh</button>
         </div>
     } else {
         const list = state.data.map(element =>
