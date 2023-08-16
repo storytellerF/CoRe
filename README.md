@@ -10,6 +10,9 @@
 
 内容支持markdown 格式（通过[Marked](https://github.com/chjj/marked) 渲染）
 
+* 支持数学公式（通过katex 渲染）
+* 支持mermaid
+
 效果
 
 ![mobile](mobile_demo.png)

@@ -6,6 +6,7 @@ import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
 import handleTab from "./handle-tab";
+import abort from "../Common/abort";
 
 function getFormData(title, content, id) {
     if (content.length === 0) {
@@ -70,33 +71,29 @@ function Editor({ marked }) {
     }
 
     useEffect(() => {
-        let canceled = false
-        if (id !== null) {
-            fetch(constants.API_BASE_URL + "/get?id=" + id).then((response) => response.json()).then((data) => {
+        return abort((state) => {
+            if (id !== null) {
+                fetch(constants.API_BASE_URL + "/get?id=" + id).then((response) => response.json()).then((data) => {
 
-                if (canceled) return
-                if (process.env.NODE_ENV === 'development') {
-                    // 在开发状态下执行的代码
-                    console.log(data)
-                }
-                updateTitle(data.title)
-                updateContent(data.codeContent)
-            }).catch((error) => console.log(error))
-        } else {
-            updateTitle("")
-            updateContent("")
-        }
-        return () => {
-            canceled = false
-        }
+                    if (state.canceled) return
+                    if (process.env.NODE_ENV === 'development') {
+                        // 在开发状态下执行的代码
+                        console.log(data)
+                    }
+                    updateTitle(data.title)
+                    updateContent(data.codeContent)
+                }).catch((error) => console.log(error))
+            } else {
+                updateTitle("")
+                updateContent("")
+            }
+        })
     }, [id, constants.API_BASE_URL])
     useEffect(() => {
-        let renderCanceled = false
-        const temp = marked.parse(content)
-        if (!renderCanceled) updateRender(temp)
-        return () => {
-            renderCanceled = true
-        }
+        return abort((state) => {
+            const temp = marked.parse(content)
+            if (!state.canceled) updateRender(temp)
+        })
     }, [content, marked])
     useEffect(() => {
         const timer = setTimeout(() => {
