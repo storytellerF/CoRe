@@ -1,0 +1,18 @@
+h1,
+h2 {
+    text-align: center;
+    margin: 0;
+}
+
+div.marpit>section {
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    scroll-snap-align: center center;
+    aspect-ratio: 16/9;
+    width: 100%;
+    height: auto;
+    margin-bottom: 1em;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    padding: 2em;
+}

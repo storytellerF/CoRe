@@ -7,6 +7,11 @@ import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
 import handleTab from "./handle-tab";
 import abort from "../Common/abort";
+import "./marp.css"
+
+const marpMark = `---
+marp: true
+---`
 
 function getFormData(title, content, id) {
     if (content.length === 0) {
@@ -91,8 +96,19 @@ function Editor({ marked }) {
     }, [id, constants.API_BASE_URL])
     useEffect(() => {
         return abort((state) => {
-            const temp = marked.parse(content)
-            if (!state.canceled) updateRender(temp)
+            if (content.startsWith(marpMark)) {
+                let c = content.substring(marpMark.length + 1).split("---")
+                let o = c.map((value) => {
+                    if (state.canceled) return undefined
+                    return `<section>${marked.parse(value)}</section>` 
+                }).join("\n")
+                console.log(c, o)
+                if (!state.canceled) updateRender(`<div class="marpit">${o}</div>`)
+            } else {
+                const temp = marked.parse(content)
+                if (!state.canceled) updateRender(temp)
+            }
+            
         })
     }, [content, marked])
     useEffect(() => {
