@@ -12,7 +12,7 @@ import { ConstantsContext } from '../Context/ConstantsContext';
 
 function Snippet({ item, marked, notifyRefresh }) {
     const constants = useContext(ConstantsContext)
-    const herf = '/delete?id=' + item.id
+    const deleteHerf = '/delete?id=' + item.id
     const editHref = '/edit?id=' + item.id
 
     const [collapsed, setCollapsed] = useState(true);
@@ -64,7 +64,9 @@ function Snippet({ item, marked, notifyRefresh }) {
         updateRender(domElement.innerHTML)
     }, [item.codeContent, marked])
     const handleDelete = () => {
-        fetch(constants.API_BASE_URL + herf).then((response) => {
+        fetch(constants.API_BASE_URL + deleteHerf, {
+            method: "POST",
+        }).then((response) => {
             if (response.status === 200) {
                 return response.text()
             } else {

@@ -40,7 +40,7 @@ public class LuceneService {
                     return writer.tryDeleteDocument(reader, id);
                 });
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             return -5;
         }
@@ -56,7 +56,7 @@ public class LuceneService {
                 writer.addDocument(codeSnippet.get());
                 return true;
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             return false;
         } 
@@ -76,7 +76,7 @@ public class LuceneService {
                 TopDocs result = seacher.search(parse, start + count);
                 return readSnippet(seacher, result, start, count);
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;
@@ -92,7 +92,7 @@ public class LuceneService {
             try {
                 Document doc = indexSearcher.doc(scoreDoc.doc);
                 return CodeSnippet.from(doc, scoreDoc.doc);
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
                 return null;
             }
@@ -109,7 +109,7 @@ public class LuceneService {
                 TopDocs result = searcher.search(parse, start + count);
                 return readSnippet(searcher, result, start, count);
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;
@@ -120,7 +120,7 @@ public class LuceneService {
             return useSearcher((searcher) -> {
                 return searcher.doc(id);
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
         return null;
