@@ -25,13 +25,13 @@ function mathsExpression(expr) {
   );
   const renderer = new coreMarked.Renderer();
   const overrideCode = function (code, language) {
-    console.log(code, language)
-    if (language == "mermaid" && (code.match(/^sequenceDiagram/) || code.match(/^graph/))) {
+    //console.log(code, language)
+    if (language === "mermaid" && (code.match(/^sequenceDiagram/) || code.match(/^graph/))) {
       return '<pre class="mermaid">' + code + '</pre>';
     } else {
       if (!language) {
         const renderMath = mathsExpression(code) 
-        console.log(renderMath)
+        //console.log(renderMath)
         if (renderMath) return renderMath
       }
       return '<pre><code>' + code + '</code></pre>';

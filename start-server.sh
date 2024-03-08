@@ -1,3 +1,3 @@
 cd server
-nohup sh gradlew build --continuous
-nohup sh gradlew bootRun
+sh gradlew build --continuous &
+sh gradlew bootRun &

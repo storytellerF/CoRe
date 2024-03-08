@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import Root from './Root'
-import Index from './Index';
+import Index from './Index/index.js';
 import reportWebVitals from './reportWebVitals';
 import coreMarked from './Detail/marked-instance';
 import 'katex/dist/katex.css'

@@ -138,7 +138,7 @@ function Editor({ marked }) {
     const handleSubmit = (event) => {
         event.preventDefault()
         const formData = getFormData(title, content, id)
-        if (formData == undefined) return
+        if (!formData) return
         let postLink
         if (id != null) postLink = "/edit"
         else postLink = "/add"
@@ -168,7 +168,7 @@ function Editor({ marked }) {
         })
     }
     useEffect(() => {
-        if (title == "" || content == "") return
+        if (!title || !content) return
         storage.set("draft", {
             title,
             content

@@ -66,7 +66,7 @@ function shiftTabMultiLine(content, start, end) {
         for (let i = startGroup.currentLineNumber; i <= endGroup.currentLineNumber; i++) {
             var { newLine, spaceCount } = shiftTab(lines[i])
             lines[i] = newLine
-            if (i == startGroup.currentLineNumber) {
+            if (i === startGroup.currentLineNumber) {
                 startOffset = spaceCount
             }
             endOffset += spaceCount

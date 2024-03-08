@@ -38,6 +38,7 @@ function List({marked, word}) {
         })
         response.then((response) => response.json()).then((data) => {
             if (canceled) return
+	    console.log('data', data)
             updateState(data)
             updateLoadingState({
                 loading: false,
@@ -75,7 +76,7 @@ function List({marked, word}) {
             <p>{loadingState.error}</p>
             <button onClick={notifyPageChange}>refresh</button>
         </div> 
-    } else if (loadingState.loading || state == null) {
+    } else if (loadingState.loading || !state || !state.data) {
         result = <div className="loading">
             <p>loading</p>
         </div> 
