@@ -7,10 +7,11 @@ button.copy-code-block {
     position: absolute;
     top: 10px;
     right: 10px;
+    display: none;
 }
 
-.code p {
-    word-break: break-word;
+.pre-wrapper:hover button.copy-code-block {
+    display: block;
 }
 
 .snippet-action {
@@ -19,4 +20,10 @@ button.copy-code-block {
 
 .pre-wrapper {
     background-color: #f3f3f3;
+    min-height: 51px;
+}
+
+pre code {
+    min-height: 1em;
+    display: inline-block;
 }

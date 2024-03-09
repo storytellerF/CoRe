@@ -8,6 +8,7 @@ import "izitoast/dist/css/iziToast.css"
 import 'highlight.js/styles/default.css';
 import { Link } from 'react-router-dom';
 import { ConstantsContext } from '../Context/ConstantsContext';
+import { parseMarkdown } from '../Common/code-parser';
 
 
 function Snippet({ item, marked, notifyRefresh }) {
@@ -29,39 +30,8 @@ function Snippet({ item, marked, notifyRefresh }) {
         });
     }
 
-    /**
-     * @return 返回包裹着codeBlockElement 的新div 容器，并添加一个button 按钮用于复制代码
-     */
-    function preCodeWrapper() {
-        const newContainer = document.createElement("div")
-        newContainer.style.position = "relative"
-        newContainer.className = "pre-wrapper"
-
-        const copySpan = document.createElement("button")
-        copySpan.className = "copy-code-block btn btn-secondary btn-sm"
-        copySpan.innerText = "copy"
-        newContainer.append(copySpan)
-        return newContainer
-    }
-
     useEffect(() => {
-        const code = marked.parse(item.codeContent)
-
-        const parser = new DOMParser();
-
-        // 解析 HTML 字符串为 DOM 文档对象
-        const doc = parser.parseFromString(code, 'text/html');
-
-        // 获取转换后的 DOM 元素
-        const domElement = doc.documentElement.ownerDocument.body;
-        const codeBlockElements = domElement.getElementsByTagName("pre")
-        for (const codeBlockElement of codeBlockElements) {
-            const newContainer = preCodeWrapper()
-            domElement.insertBefore(newContainer, codeBlockElement)
-            newContainer.append(codeBlockElement)
-        }
-
-        updateRender(domElement.innerHTML)
+        updateRender(parseMarkdown(marked, item.codeContent))
     }, [item.codeContent, marked])
     const handleDelete = () => {
         fetch(constants.API_BASE_URL + deleteHerf, {

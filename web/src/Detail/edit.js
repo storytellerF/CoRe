@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
 import "./edit.css"
 import iziToast from "izitoast";
+import clipboard from 'clipboard';
 import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
@@ -9,6 +10,7 @@ import handleTab from "./handle-tab";
 import runWithLifecycle from "../Common/abort";
 import "./marp.css"
 import "./item.css"
+import { copyCodeBlock, parseMarkdown } from "../Common/code-parser";
 
 const marpMark = `---
 marp: true
@@ -102,12 +104,12 @@ function Editor({ marked }) {
                 let contentList = content.substring(marpMark.length + 1).split("---")
                 let o = contentList.map((value) => {
                     if (state.canceled) return undefined
-                    return `<section>${marked.parse(value)}</section>` 
+                    return `<section>${parseMarkdown(marked, value)}</section>` 
                 }).join("\n")
                 console.log(contentList, o)
                 if (!state.canceled) updateRender(`<div class="marpit">${o}</div>`)
             } else {
-                const temp = marked.parse(content)
+                const temp = parseMarkdown(marked, content)
                 if (!state.canceled) updateRender(temp)
             }
             
@@ -133,12 +135,19 @@ function Editor({ marked }) {
         }
 
         return () => {
+            //如果timer 已经执行，停止任务
             selectionCanceled = true
+            //清除timer
             clearTimeout(timer)
         }
     }, [nextSelection])
     const handleSubmit = (event) => {
         event.preventDefault()
+        let submitter = event.nativeEvent.submitter
+        if (!submitter.className.indexOf("copy-code-block")) {
+            copyCodeBlock(submitter)
+            return
+        }
         const formData = getFormData(title, content, id)
         if (!formData) return
         let postLink

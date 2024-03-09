@@ -1,21 +1,15 @@
 import { Fragment, useContext, useEffect, useState } from "react"
 import Snippet from "../Detail/item"
 import { Container } from "reactstrap"
-import ClipboardJS from "clipboard"
-import iziToast from 'izitoast';
 import "izitoast/dist/css/iziToast.css"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import Pagination from "./pagination";
+import { copyCodeBlock } from "../Common/code-parser";
 
 const globalClickListener = function(event) {
     const target = event.target
     if (target.className.indexOf("copy-code-block") >= 0) {
-        ClipboardJS.copy(target.nextSibling.firstChild.innerText)
-        iziToast.show({
-            title: 'copied',
-            color: 'green',
-            position: 'center'
-        })
+        copyCodeBlock(target)
     }
 }
 
