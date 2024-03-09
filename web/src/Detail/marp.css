@@ -1,4 +1,4 @@
-div.marpit>section {
+div.marpit > section {
     box-sizing: border-box;
     overflow: hidden;
     position: relative;
@@ -9,7 +9,8 @@ div.marpit>section {
     margin-bottom: 1em;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     padding: 2em;
-    h1, h2 {
+    h1,
+    h2 {
         text-align: center;
         margin: 0;
     }

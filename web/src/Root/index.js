@@ -8,7 +8,7 @@ function Root() {
             <TopNav />
             <Outlet />
         </Fragment>
-    )
+    );
 }
 
-export default Root
+export default Root;

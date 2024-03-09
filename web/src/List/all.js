@@ -1,9 +1,7 @@
-import List from "../List/list"
+import List from "../List/list";
 
-function All({marked}) {
-    return (
-        <List marked={marked} word={""}/>
-    )
+function All({ marked }) {
+    return <List marked={marked} word={""} />;
 }
 
-export default All
+export default All;

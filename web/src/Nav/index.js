@@ -1,5 +1,5 @@
-import 'bootstrap/dist/css/bootstrap.css';
-import { useState } from 'react';
+import "bootstrap/dist/css/bootstrap.css";
+import { useState } from "react";
 import {
     Nav,
     NavItem,
@@ -11,33 +11,47 @@ import {
     InputGroup,
     Button,
     Input,
-    Form
+    Form,
 } from "reactstrap";
-import { NavLink as RouterLink, useLocation } from 'react-router-dom';
+import { NavLink as RouterLink, useLocation } from "react-router-dom";
 function TopNav() {
     const [collapsed, setCollapsed] = useState(true);
 
     const toggleNavbar = () => setCollapsed(!collapsed);
-    
-    let pages = [{
-        herf: "/index",
-        text: "首页",
-    }, {
-        herf: "/add",
-        text: "添加",
-    }, {
-        herf: "/all",
-        text: "全部",
-    }]
-    let pageLinks = pages.map(element =>
+
+    let pages = [
+        {
+            herf: "/index",
+            text: "首页",
+        },
+        {
+            herf: "/add",
+            text: "添加",
+        },
+        {
+            herf: "/all",
+            text: "全部",
+        },
+    ];
+    let pageLinks = pages.map((element) => (
         <NavItem key={element.herf}>
-            <RouterLink className={({ isActive, isPending }) =>
-                isPending ? "pending nav-link" : isActive ? "active nav-link" : "nav-link"} to={element.herf}>{element.text}</RouterLink>
+            <RouterLink
+                className={({ isActive, isPending }) =>
+                    isPending
+                        ? "pending nav-link"
+                        : isActive
+                          ? "active nav-link"
+                          : "nav-link"
+                }
+                to={element.herf}
+            >
+                {element.text}
+            </RouterLink>
         </NavItem>
-    )
-    const location = useLocation()
+    ));
+    const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const word = queryParams.get("word")
+    const word = queryParams.get("word");
     const [inputValue, setInputValue] = useState(word || "");
 
     const handleInputChange = (event) => {
@@ -56,17 +70,21 @@ function TopNav() {
                             GitHub
                         </NavLink>
                     </NavItem>
-
                 </Nav>
-                <Form className='d-flex' method='get' action='/search'>
+                <Form className="d-flex" method="get" action="/search">
                     <InputGroup>
-                        <Input placeholder='Search something' name='word' value={inputValue} onChange={handleInputChange}/>
+                        <Input
+                            placeholder="Search something"
+                            name="word"
+                            value={inputValue}
+                            onChange={handleInputChange}
+                        />
                         <Button color="secondary">Search</Button>
                     </InputGroup>
                 </Form>
             </Collapse>
         </Navbar>
-    )
+    );
 }
 
-export default TopNav
+export default TopNav;
