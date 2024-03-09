@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
 import "./edit.css"
 import iziToast from "izitoast";
-import storage from "store"
+import localforge from 'localforage'
 import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
 import handleTab from "./handle-tab";
@@ -195,13 +195,15 @@ function Editor({ marked }) {
     }
     useEffect(() => {
         if (!title || !content) return
-        storage.set("draft", {
-            title,
-            content
-        })
+        (async function() {
+            await localforge.setItem("draft", {
+                title,
+                content
+            })
+        })()
     }, [title, content])
-    const recoverDraft = () => {
-        const value = storage.get("draft") || {}
+    const recoverDraft = async () => {
+        const value = await localforge.getItem("draft") || {}
         if (!value.title && !value.content) {
             iziToast.show({
                 title: "no draft",
