@@ -1,4 +1,4 @@
-function abort(fun) {
+function runWithLifecycle(fun) {
     let obj = {
         canceled: false,
     }
@@ -9,4 +9,4 @@ function abort(fun) {
     return cancel
 }
 
-export default abort
+export default runWithLifecycle

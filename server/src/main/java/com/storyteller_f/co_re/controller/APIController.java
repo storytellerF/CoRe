@@ -1,7 +1,6 @@
 package com.storyteller_f.co_re.controller;
 
 import com.storyteller_f.co_re.CodeSnippet;
-import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,14 +21,17 @@ public class APIController {
      * 添加document
      * @param title snippt 的标题
      * @param codeContent snippet 的内容
+     * @return 返回-3 代表出现了错误。否则返回addDocument 的结果
      */
     @PostMapping("/add")
-    public boolean add(String title, String codeContent) {
+    public long add(String title, String codeContent) {
         return service.save(title, codeContent);
     }
 
     /**
      * 删除单个document
+     * @param id document 的id
+     * @return 返回-2 代表出现了错误。否则返回tryDeleteDocument 的结果
      */
     @PostMapping("/delete")
     public long delete(int id) {
@@ -37,15 +39,20 @@ public class APIController {
     }
 
     /**
-     * 修改单个document，如果id 是-1，等同于/add
+     * 修改单个document，id 必须存在
+     * @param codeSnippet 新的内容
+     * @return 如果返回-4，说明id == -1，如果返回-2，说明删除失败，如果返回-3，说明保存失败，其他代表编辑成功
      */
     @PostMapping("/edit")
-    public boolean edit(CodeSnippet codeSnippet) {
-        long delete = delete(codeSnippet.getId());
-        if (delete != -1) {
-            return add(codeSnippet.getTitle(), codeSnippet.getCodeContent());
+    public long edit(CodeSnippet codeSnippet) {
+        if (codeSnippet.getId() == -1) {
+            return LuceneService.INVALID_ID_EXCEPTION;
         }
-        return false;
+        long deleteResult = delete(codeSnippet.getId());
+        if (deleteResult < 0) {
+            return deleteResult;
+        }
+        return add(codeSnippet.getTitle(), codeSnippet.getCodeContent());
     }
 
     /**
@@ -74,8 +81,6 @@ public class APIController {
      */
     @GetMapping("/get")
     public CodeSnippet get(int id) {
-        Document document = service.get(id);
-        CodeSnippet snippet = CodeSnippet.from(document, id);
-        return snippet;
+        return service.get(id);
     }
 }

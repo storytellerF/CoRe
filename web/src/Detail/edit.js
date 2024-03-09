@@ -1,13 +1,14 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import "./edit.css"
 import iziToast from "izitoast";
 import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
 import handleTab from "./handle-tab";
-import abort from "../Common/abort";
+import runWithLifecycle from "../Common/abort";
 import "./marp.css"
+import "./item.css"
 
 const marpMark = `---
 marp: true
@@ -33,14 +34,14 @@ function getFormData(title, content, id) {
     const formData = new FormData()
     formData.append("title", title)
     formData.append("codeContent", content)
-    if (id != null)
-        formData.append("id", id)
+    formData.append("id", id || "-1")
     return formData
 }
 
 function Editor({ marked }) {
     const constants = useContext(ConstantsContext)
     const location = useLocation()
+    const navigate = useNavigate()
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id")
     const [title, updateTitle] = useState("")
@@ -76,7 +77,7 @@ function Editor({ marked }) {
     }
 
     useEffect(() => {
-        return abort((state) => {
+        return runWithLifecycle((state) => {
             if (id !== null) {
                 fetch(constants.API_BASE_URL + "/get?id=" + id).then((response) => response.json()).then((data) => {
 
@@ -95,14 +96,15 @@ function Editor({ marked }) {
         })
     }, [id, constants.API_BASE_URL])
     useEffect(() => {
-        return abort((state) => {
+        return runWithLifecycle((state) => {
+            if (!content) return
             if (content.startsWith(marpMark)) {
-                let c = content.substring(marpMark.length + 1).split("---")
-                let o = c.map((value) => {
+                let contentList = content.substring(marpMark.length + 1).split("---")
+                let o = contentList.map((value) => {
                     if (state.canceled) return undefined
                     return `<section>${marked.parse(value)}</section>` 
                 }).join("\n")
-                console.log(c, o)
+                console.log(contentList, o)
                 if (!state.canceled) updateRender(`<div class="marpit">${o}</div>`)
             } else {
                 const temp = marked.parse(content)
@@ -140,7 +142,7 @@ function Editor({ marked }) {
         const formData = getFormData(title, content, id)
         if (!formData) return
         let postLink
-        if (id != null) postLink = "/edit"
+        if (id) postLink = "/edit"
         else postLink = "/add"
         fetch(constants.API_BASE_URL + postLink, {
             method: "post",
@@ -153,15 +155,31 @@ function Editor({ marked }) {
                 return Promise.reject(response.status + " " + response.statusText)
             }
         }).then((data) => {
-            iziToast.show({
-                title: data,
-                color: "green",
-                position: "center",
-            });
+            if (id) {
+                iziToast.show({
+                    title: `success ${data}`,
+                    color: "green",
+                    position: "center",
+                });
+            } else if (data >= 0) {
+                navigate(`/edit?id=${data}`)
+                iziToast.show({
+                    title: `success ${data}`,
+                    color: "green",
+                    position: "center",
+                });
+            } else {
+                iziToast.show({
+                    title: data,
+                    color: "red",
+                    position: "center",
+                });
+            }
+            
         }).catch((error) => {
-            console.log(error)
+            console.log("error", error)
             iziToast.show({
-                title: error,
+                title: error.message,
                 color: "red",
                 position: "center"
             })
@@ -176,8 +194,15 @@ function Editor({ marked }) {
     }, [title, content])
     const recoverDraft = () => {
         const value = storage.get("draft") || {}
-        updateTitle(value.title)
-        updateContent(value.content)
+        if (!value.title && !value.content) {
+            iziToast.show({
+                title: "no draft",
+                color: "yellow",
+                position: "center"
+            })
+        }
+        updateTitle(value.title || "")
+        updateContent(value.content || "")
     }
     return (
         <div className="container" style={{ marginTop: "20px" }}>

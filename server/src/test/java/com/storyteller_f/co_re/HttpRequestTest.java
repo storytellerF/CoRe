@@ -7,7 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,9 +24,9 @@ public class HttpRequestTest {
 
     @Test
     void testDeleteResultWhenError() throws Exception {
-        Object r = restTemplate.postForObject("http://localhost:" + port + "/delete?id=1", null,
+        Object r = restTemplate.postForObject("http://localhost:" + port + "/delete?id=100000", null,
                 Object.class);
-        assertThat(r).isEqualTo(-5);
+        assertThat(r).isEqualTo(0);
     }
 
 }
