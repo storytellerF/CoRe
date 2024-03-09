@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
 import "./edit.css"
 import iziToast from "izitoast";
-import clipboard from 'clipboard';
 import storage from "store"
 import { ConstantsContext } from "../Context/ConstantsContext";
 import mermaid from "mermaid";
