@@ -11,6 +11,7 @@ import "./index.css";
 import All from "./List/all";
 import Search from "./List/search";
 import Editor from "./Detail/edit";
+import Login from "./Login/index.js";
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
                 path: "/add",
                 element: <Editor marked={coreMarked} />,
             },
+            {
+                path: "/login",
+                element: <Login />,
+            }
         ],
     },
 ]);

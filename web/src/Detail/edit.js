@@ -80,7 +80,14 @@ function Editor({ marked }) {
     useEffect(() => {
         return runWithLifecycle((state) => {
             if (id !== null) {
-                fetch(constants.API_BASE_URL + "/get?id=" + id)
+                localforge
+                    .getItem("core-key")
+                    .then(function (value) {
+                        return fetch(constants.API_BASE_URL + "/get?id=" + id, {
+                            headers: { "core-key": value },
+                        });
+                    })
+
                     .then((response) => response.json())
                     .then((data) => {
                         if (state.canceled) return;
@@ -158,10 +165,18 @@ function Editor({ marked }) {
         let postLink;
         if (id) postLink = "/edit";
         else postLink = "/add";
-        fetch(constants.API_BASE_URL + postLink, {
-            method: "post",
-            body: formData,
-        })
+        localforge
+            .getItem("core-key")
+            .then(function (value) {
+                return fetch(constants.API_BASE_URL + postLink, {
+                    method: "post",
+                    body: formData,
+                    headers: {
+                        "core-key": value
+                    }
+                });
+            })
+
             .then((response) => {
                 console.log(response);
                 if (response.status === 200) {

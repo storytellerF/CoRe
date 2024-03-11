@@ -1,10 +1,11 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import Snippet from "../Detail/item";
-import { Container } from "reactstrap";
+import { Button, Container } from "reactstrap";
 import "izitoast/dist/css/iziToast.css";
 import { ConstantsContext } from "../Context/ConstantsContext";
 import Pagination from "./pagination";
 import { copyCodeBlock } from "../Common/code-parser";
+import localforage from "localforage";
 
 const globalClickListener = function (event) {
     const target = event.target;
@@ -27,13 +28,18 @@ function List({ marked, word }) {
             loading: true,
             error: null,
         });
-        const response = fetch(
-            `${constants.API_BASE_URL}/search?word=${word}&start=${(page - 1) * count}&count=${count}`,
-            {
-                signal: abortController.signal,
-            },
-        );
-        response
+        console.log("fetch")
+        localforage
+            .getItem("core-key")
+            .then(function (value) {
+                return fetch(
+                    `${constants.API_BASE_URL}/search?word=${word}&start=${(page - 1) * count}&count=${count}`,
+                    {
+                        headers: { "core-key": value },
+                        signal: abortController.signal,
+                    },
+                );
+            })
             .then((response) => response.json())
             .then((data) => {
                 if (canceled) return;
@@ -90,7 +96,9 @@ function List({ marked, word }) {
         result = (
             <div className="loading">
                 <p>empty</p>
-                <button onClick={notifyPageChange}>refresh</button>
+                <Button color="primary" onClick={notifyPageChange}>
+                    refresh
+                </Button>
             </div>
         );
     } else {

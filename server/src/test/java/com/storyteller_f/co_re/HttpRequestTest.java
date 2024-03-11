@@ -24,9 +24,10 @@ public class HttpRequestTest {
 
     @Test
     void testDeleteResultWhenError() throws Exception {
-        Object r = restTemplate.postForObject("http://localhost:" + port + "/delete?id=100000", null,
+        AuthenticationFilter.skipAuth = true;
+        Object r = restTemplate.postForObject("http://localhost:" + port + "/apis/delete?id=100000", null,
                 Object.class);
-        assertThat(r).isEqualTo(0);
+        assertThat(r).isEqualTo(-2);
     }
 
 }

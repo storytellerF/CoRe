@@ -9,6 +9,7 @@ import "highlight.js/styles/default.css";
 import { Link } from "react-router-dom";
 import { ConstantsContext } from "../Context/ConstantsContext";
 import { parseMarkdown } from "../Common/code-parser";
+import localforage from "localforage";
 
 function Snippet({ item, marked, notifyRefresh }) {
     const constants = useContext(ConstantsContext);
@@ -33,9 +34,15 @@ function Snippet({ item, marked, notifyRefresh }) {
         updateRender(parseMarkdown(marked, item.codeContent));
     }, [item.codeContent, marked]);
     const handleDelete = () => {
-        fetch(constants.API_BASE_URL + deleteHerf, {
-            method: "POST",
-        })
+        localforage
+            .getItem("core-key")
+            .then(function (value) {
+                return fetch(constants.API_BASE_URL + deleteHerf, {
+                    method: "POST",
+                    headers: { "core-key": value },
+                });
+            })
+
             .then((response) => {
                 if (response.status === 200) {
                     return response.text();

@@ -32,6 +32,10 @@ function TopNav() {
             herf: "/all",
             text: "全部",
         },
+        {
+            herf: "/login",
+            text: "登录"
+        }
     ];
     let pageLinks = pages.map((element) => (
         <NavItem key={element.herf}>
