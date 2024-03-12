@@ -10,6 +10,8 @@ import runWithLifecycle from "../Common/abort";
 import "./marp.css";
 import "./item.css";
 import { copyCodeBlock, parseMarkdown } from "../Common/code-parser";
+import { apiRequest } from "../Common/api";
+import { alertError } from "../Common/alert";
 
 const marpMark = `---
 marp: true
@@ -80,25 +82,27 @@ function Editor({ marked }) {
     useEffect(() => {
         return runWithLifecycle((state) => {
             if (id !== null) {
-                localforge
-                    .getItem("core-key")
-                    .then(function (value) {
-                        return fetch(constants.API_BASE_URL + "/get?id=" + id, {
-                            headers: { "core-key": value },
-                        });
+                apiRequest(state.abortController, "/get?id=" + id)
+                    .then((response) => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            return Promise.reject(new Error(response.status + " " + response.statusText));
+                        }
                     })
-
-                    .then((response) => response.json())
                     .then((data) => {
                         if (state.canceled) return;
                         if (process.env.NODE_ENV === "development") {
                             // 在开发状态下执行的代码
-                            console.log(data);
+                            console.log("data", data);
                         }
                         updateTitle(data.title);
                         updateContent(data.codeContent);
                     })
-                    .catch((error) => console.log(error));
+                    .catch((error) => {
+                        console.log("error", error)
+                        alertError(error)
+                    });
             } else {
                 updateTitle("");
                 updateContent("");
@@ -165,58 +169,43 @@ function Editor({ marked }) {
         let postLink;
         if (id) postLink = "/edit";
         else postLink = "/add";
-        localforge
-            .getItem("core-key")
-            .then(function (value) {
-                return fetch(constants.API_BASE_URL + postLink, {
-                    method: "post",
-                    body: formData,
-                    headers: {
-                        "core-key": value
-                    }
-                });
-            })
-
-            .then((response) => {
-                console.log(response);
-                if (response.status === 200) {
-                    return response.text();
-                } else {
-                    return Promise.reject(
-                        response.status + " " + response.statusText,
-                    );
-                }
-            })
-            .then((data) => {
-                if (id) {
-                    iziToast.show({
-                        title: `success ${data}`,
-                        color: "green",
-                        position: "center",
-                    });
-                } else if (data >= 0) {
-                    navigate(`/edit?id=${data}`);
-                    iziToast.show({
-                        title: `success ${data}`,
-                        color: "green",
-                        position: "center",
-                    });
-                } else {
-                    iziToast.show({
-                        title: data,
-                        color: "red",
-                        position: "center",
-                    });
-                }
-            })
-            .catch((error) => {
-                console.log("error", error);
+        apiRequest(new AbortController(), postLink, {
+            method: "post",
+            body: formData,
+        })
+        .then((response) => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                return Promise.reject(new Error(response.status + " " + response.statusText));
+            }
+        })
+        .then((data) => {
+            if (id) {
                 iziToast.show({
-                    title: error.message,
+                    title: `success ${data}`,
+                    color: "green",
+                    position: "center",
+                });
+            } else if (data >= 0) {
+                navigate(`/edit?id=${data}`);
+                iziToast.show({
+                    title: `success ${data}`,
+                    color: "green",
+                    position: "center",
+                });
+            } else {
+                iziToast.show({
+                    title: data,
                     color: "red",
                     position: "center",
                 });
-            });
+            }
+        })
+        .catch((error) => {
+            console.log("error", error);
+            alertError(error)
+        });
     };
     useEffect(() => {
         if (!title || !content) return;

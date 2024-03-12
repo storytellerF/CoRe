@@ -4,6 +4,7 @@ import com.storyteller_f.co_re.CodeSnippet;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -105,13 +106,19 @@ public class APIController {
         try {
             HttpSession session = request.getSession();
             String home = System.getProperty("user.home");
-            String d = Files.readString(new File(home, "core-password").toPath()).trim();
-            log.info("saved " + d + " input " + tuple.password + " " + d.length() +" session " + session.getAttribute("key"));
-            if (d.equals(tuple.password)) {
-                String key = UUID.randomUUID().toString();
-                session.setAttribute("key", key);
-                Files.writeString(new File(home, "core-key").toPath(), key);
-                return key;
+            String password = Files.readString(new File(home, "core-password").toPath()).trim();
+            log.info("saved " + password + " input " + tuple.password + " " + password.length());
+            if (password.equals(tuple.password)) {
+                Path p = new File(home, "core-key").toPath();
+                if (Files.exists(p)) {
+                    return Files.readString(p);
+                } else {
+                    String key = UUID.randomUUID().toString();
+                    session.setAttribute("key", key);
+                    Files.writeString(p, key);
+                    return key;
+                }
+                
             } else {
                 return "invalid";
             }

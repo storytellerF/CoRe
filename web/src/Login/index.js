@@ -18,11 +18,20 @@ function Login() {
                     password
                 })
             })
-            await localforage.setItem("core-key", result.text())
-            iziToast.success({
-                title: "login success",
-                position: "center"
-            })
+            let text = await result.text()
+            if (text && text !== "invalid") {
+                await localforage.setItem("core-key", text)
+                iziToast.success({
+                    title: "login success",
+                    position: "center"
+                })
+            } else {
+                iziToast.error({
+                    title: `failed: ${text}`,
+                    position: "center"
+                })
+            }
+            
         } catch (error) {
             iziToast.error({
                 title: error.message,

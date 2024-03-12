@@ -5,7 +5,8 @@ import "izitoast/dist/css/iziToast.css";
 import { ConstantsContext } from "../Context/ConstantsContext";
 import Pagination from "./pagination";
 import { copyCodeBlock } from "../Common/code-parser";
-import localforage from "localforage";
+import { apiRequest } from "../Common/api";
+import runWithLifecycle from "../Common/abort";
 
 const globalClickListener = function (event) {
     const target = event.target;
@@ -22,27 +23,20 @@ function List({ marked, word }) {
     const [page, updatePage] = useState(1);
     const count = constants.MAX_ITEMS;
     useEffect(() => {
-        const abortController = new AbortController();
-        let canceled = false;
         updateLoadingState({
             loading: true,
             error: null,
         });
-        console.log("fetch")
-        localforage
-            .getItem("core-key")
-            .then(function (value) {
-                return fetch(
-                    `${constants.API_BASE_URL}/search?word=${word}&start=${(page - 1) * count}&count=${count}`,
-                    {
-                        headers: { "core-key": value },
-                        signal: abortController.signal,
-                    },
-                );
+        const cancelHandler = runWithLifecycle(function(state) {
+            apiRequest(state.abortController, `/search?word=${word}&start=${(page - 1) * count}&count=${count}`)
+            .then((response) => {
+                if (response.status === 401)
+                    return Promise.reject(new Error("401 Unauthorized")); 
+                else
+                    return response.json();
             })
-            .then((response) => response.json())
             .then((data) => {
-                if (canceled) return;
+                if (state.canceled) return;
                 console.log("data", data);
                 updateState(data);
                 updateLoadingState({
@@ -58,9 +52,11 @@ function List({ marked, word }) {
                 });
             });
 
-        document.addEventListener("click", globalClickListener);
+            document.addEventListener("click", globalClickListener);
+        })
+        
         return () => {
-            canceled = true;
+            cancelHandler()
             document.removeEventListener("click", globalClickListener);
         };
     }, [refreshIndex, page, constants.API_BASE_URL, count, word]);
@@ -82,8 +78,8 @@ function List({ marked, word }) {
     } else if (loadingState.error != null) {
         result = (
             <div className="loading">
-                <p>{loadingState.error}</p>
-                <button onClick={notifyPageChange}>refresh</button>
+                <p className="text-danger">{loadingState.error}</p>
+                <Button color="primary" onClick={notifyRefresh}>refresh</Button>
             </div>
         );
     } else if (loadingState.loading || !state || !state.data) {
@@ -96,7 +92,7 @@ function List({ marked, word }) {
         result = (
             <div className="loading">
                 <p>empty</p>
-                <Button color="primary" onClick={notifyPageChange}>
+                <Button color="primary" onClick={notifyRefresh}>
                     refresh
                 </Button>
             </div>

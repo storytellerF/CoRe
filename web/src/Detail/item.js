@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./item.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { Button, Collapse } from "reactstrap";
@@ -7,12 +7,10 @@ import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.css";
 import "highlight.js/styles/default.css";
 import { Link } from "react-router-dom";
-import { ConstantsContext } from "../Context/ConstantsContext";
 import { parseMarkdown } from "../Common/code-parser";
-import localforage from "localforage";
+import { apiRequest } from "../Common/api";
 
 function Snippet({ item, marked, notifyRefresh }) {
-    const constants = useContext(ConstantsContext);
     const deleteHerf = "/delete?id=" + item.id;
     const editHref = "/edit?id=" + item.id;
 
@@ -34,40 +32,34 @@ function Snippet({ item, marked, notifyRefresh }) {
         updateRender(parseMarkdown(marked, item.codeContent));
     }, [item.codeContent, marked]);
     const handleDelete = () => {
-        localforage
-            .getItem("core-key")
-            .then(function (value) {
-                return fetch(constants.API_BASE_URL + deleteHerf, {
-                    method: "POST",
-                    headers: { "core-key": value },
-                });
-            })
-
-            .then((response) => {
-                if (response.status === 200) {
-                    return response.text();
-                } else {
-                    return Promise.reject(
-                        new Error(response.status + " " + response.statusText),
-                    );
-                }
-            })
-            .then((data) => {
-                iziToast.show({
-                    title: data || "success",
-                    color: "green",
-                    position: "center",
-                });
-                notifyRefresh();
-            })
-            .catch((error) => {
-                console.error(error);
-                iziToast.show({
-                    title: error,
-                    color: "red",
-                    position: "center",
-                });
+        apiRequest(new AbortController(), deleteHerf, {
+            method: "POST",
+        })
+        .then((response) => {
+            if (response.status === 200) {
+                return response.text();
+            } else {
+                return Promise.reject(
+                    new Error(response.status + " " + response.statusText),
+                );
+            }
+        })
+        .then((data) => {
+            iziToast.show({
+                title: data || "success",
+                color: "green",
+                position: "center",
             });
+            notifyRefresh();
+        })
+        .catch((error) => {
+            console.error(error);
+            iziToast.show({
+                title: error,
+                color: "red",
+                position: "center",
+            });
+        });
     };
     return (
         <li className="list-group-item">

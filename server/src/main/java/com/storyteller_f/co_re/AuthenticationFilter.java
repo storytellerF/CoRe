@@ -3,6 +3,7 @@ package com.storyteller_f.co_re;
 import java.io.IOException;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,11 +33,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        if (key != null) {
-            String home = System.getProperty("user.home");
-            String d = Files.readString(new File(home, "core-key").toPath()).trim();
-            log.info("filter local core-key" + d);
-            if (d.equals(key)) {
+        String home = System.getProperty("user.home");
+        Path p = new File(home, "core-key").toPath();
+        if (key != null && Files.exists(p)) {
+            String savedKey = Files.readString(p).trim();
+            log.info("filter local core-key" + savedKey);
+            if (savedKey.equals(key)) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -44,6 +46,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Reject the request and send an unauthorized error
+        response.addHeader("Access-Control-Allow-Origin", "*");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.getWriter().write("Unauthorized");
     }
