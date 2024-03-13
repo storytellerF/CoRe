@@ -13,7 +13,8 @@ import {
     Input,
     Form,
 } from "reactstrap";
-import { NavLink as RouterLink, useLocation } from "react-router-dom";
+import { NavLink as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { logout } from "../Common/api";
 function TopNav() {
     const [collapsed, setCollapsed] = useState(true);
 
@@ -54,6 +55,7 @@ function TopNav() {
         </NavItem>
     ));
     const location = useLocation();
+    const navigate = useNavigate()
     const queryParams = new URLSearchParams(location.search);
     const word = queryParams.get("word");
     const [inputValue, setInputValue] = useState(word || "");
@@ -61,6 +63,14 @@ function TopNav() {
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
     };
+
+    const handleLogout = () => {
+        logout()
+        if (location.pathname !== "/") {
+            navigate("/")
+        }
+    }
+
     return (
         <Navbar color="light" light expand="md">
             <NavbarBrand href="/">CoRe</NavbarBrand>
@@ -69,6 +79,7 @@ function TopNav() {
                 <Nav className="me-auto" navbar>
                     {pageLinks}
 
+                    <Button onClick={handleLogout} outline>注销</Button>
                     <NavItem>
                         <NavLink href="https://github.com/storytellerF/CoRe">
                             GitHub

@@ -10,3 +10,7 @@ export function apiRequest(abortController, path, other) {
         });
     });
 }
+
+export async function logout() {
+    await localforage.removeItem("core-key")
+}
