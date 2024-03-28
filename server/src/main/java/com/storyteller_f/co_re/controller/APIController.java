@@ -1,11 +1,7 @@
 package com.storyteller_f.co_re.controller;
 
+import com.storyteller_f.co_re.AuthCenter;
 import com.storyteller_f.co_re.CodeSnippet;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.storyteller_f.co_re.Response;
+import com.storyteller_f.co_re.AuthCenter.AuthSession;
 
 @CrossOrigin
 @RestController
@@ -33,6 +30,9 @@ public class APIController {
     
     @Autowired
     LuceneService service;
+
+    @Autowired
+    AuthCenter center;
 
     /**
      * 添加document
@@ -103,36 +103,18 @@ public class APIController {
 
     @PostMapping("/login")
     public String login(LoginTuple tuple, HttpServletRequest request) {
-        try {
+        AuthSession s = center.tryLogin(tuple, log);
+        if (s.newCreated) {
             HttpSession session = request.getSession();
-            String home = System.getProperty("user.home");
-            String password = Files.readString(new File(home, "core-password").toPath()).trim();
-            log.info("saved " + password + " input " + tuple.password + " " + password.length());
-            if (password.equals(tuple.password)) {
-                Path p = new File(home, "core-key").toPath();
-                if (Files.exists(p)) {
-                    return Files.readString(p);
-                } else {
-                    String key = UUID.randomUUID().toString();
-                    session.setAttribute("key", key);
-                    Files.writeString(p, key);
-                    return key;
-                }
-                
-            } else {
-                return "invalid";
-            }
-            
-        } catch (Exception e) {
-            return "";
+            session.setAttribute("key", s.returnedKey);
         }
-        
+        return s.returnedKey;
     }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    static class LoginTuple {
-        private String password;
+    public static class LoginTuple {
+        public String password;
     }
 }

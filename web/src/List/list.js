@@ -7,6 +7,7 @@ import Pagination from "./pagination";
 import { copyCodeBlock } from "../Common/code-parser";
 import { apiRequest } from "../Common/api";
 import runWithLifecycle from "../Common/abort";
+import { useNavigate } from "react-router-dom";
 
 const globalClickListener = function (event) {
     const target = event.target;
@@ -21,7 +22,10 @@ function List({ marked, word }) {
     const [loadingState, updateLoadingState] = useState(null);
     const constants = useContext(ConstantsContext);
     const [page, updatePage] = useState(1);
+    const navigate = useNavigate()
+
     const count = constants.MAX_ITEMS;
+    const erorr401 = "401 Unauthorized"
     useEffect(() => {
         updateLoadingState({
             loading: true,
@@ -31,7 +35,7 @@ function List({ marked, word }) {
             apiRequest(state.abortController, `/search?word=${word}&start=${(page - 1) * count}&count=${count}`)
             .then((response) => {
                 if (response.status === 401)
-                    return Promise.reject(new Error("401 Unauthorized")); 
+                    return Promise.reject(new Error(erorr401)); 
                 else
                     return response.json();
             })
@@ -62,8 +66,13 @@ function List({ marked, word }) {
     }, [refreshIndex, page, constants.API_BASE_URL, count, word]);
 
     const notifyRefresh = () => {
-        console.log("notifyRefresh", refreshIndex);
-        nextRefresh((refreshIndex || 0) + 1);
+        if (loadingState.error === erorr401) {
+            navigate("/login")
+        } else {
+            console.log("notifyRefresh", refreshIndex);
+            nextRefresh((refreshIndex || 0) + 1);
+        }
+        
     };
     const notifyPageChange = (page) => {
         updatePage(page);
@@ -79,7 +88,7 @@ function List({ marked, word }) {
         result = (
             <div className="loading">
                 <p className="text-danger">{loadingState.error}</p>
-                <Button color="primary" onClick={notifyRefresh}>refresh</Button>
+                <Button color="primary" onClick={notifyRefresh}>{loadingState.error === erorr401 ? "login" : "refresh"}</Button>
             </div>
         );
     } else if (loadingState.loading || !state || !state.data) {
