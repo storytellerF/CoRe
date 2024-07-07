@@ -1,6 +1,8 @@
 package com.storyteller_f.co_re;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -25,6 +27,7 @@ public class CodeSnippet {
     public static final String contentKey = "code";
     public static final String lastModifiedTimeKey = "lastModified";
     public static final String uuidKey = "uuid";
+    public static final Set<String> colWhenSearch = Set.of(titleKey, contentKey, lastModifiedTimeKey, uuidKey);
 
     public Document get() {
         Document document = new Document();

@@ -54,7 +54,8 @@ public class LuceneService {
     public CodeSnippet get(int id) {
         try {
             Document document = useSearcher((searcher) -> {
-                return searcher.doc(id);
+                StoredFields storedFields = searcher.storedFields();
+                return storedFields.document(id);
             });
             document.forEach((a) -> {
                 System.out.println(a.name());
@@ -163,7 +164,8 @@ public class LuceneService {
         List<CodeSnippet> list = Arrays.stream(topDocs.scoreDocs).skip(start).limit(Math.min(count, total - start))
                 .map(scoreDoc -> {
                     try {
-                        Document doc = indexSearcher.doc(scoreDoc.doc);
+                        StoredFields storedFields = indexSearcher.storedFields();
+                        Document doc = storedFields.document(scoreDoc.doc);
                         return CodeSnippet.from(doc, scoreDoc.doc);
                     } catch (Throwable e) {
                         e.printStackTrace();

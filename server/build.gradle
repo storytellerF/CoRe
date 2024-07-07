@@ -40,6 +40,9 @@ dependencies {
 
 	implementation group: 'org.apache.lucene', name: 'lucene-highlighter', version: '9.11.1'
 	implementation group: 'org.apache.lucene', name: 'lucene-queryparser', version: '9.11.1'
+
+	// https://mvnrepository.com/artifact/com.github.spotbugs/spotbugs-annotations
+	implementation("com.github.spotbugs:spotbugs-annotations:4.8.6")
 }
 
 test {
@@ -54,3 +57,8 @@ task copySSL(type: Copy) {
 }
 
 tasks.processResources.dependsOn(copySSL)
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
+}
+
