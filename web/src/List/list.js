@@ -31,34 +31,34 @@ function List({ marked, word }) {
             loading: true,
             error: null,
         });
-        const cancelHandler = runWithLifecycle(function(state) {
-            apiRequest(state.abortController, `/search?word=${word}&start=${(page - 1) * count}&count=${count}`)
-            .then((response) => {
-                if (response.status === 401)
-                    return Promise.reject(new Error(erorr401)); 
-                else
-                    return response.json();
-            })
-            .then((data) => {
-                if (state.canceled) return;
-                console.log("data", data);
-                updateState(data);
-                updateLoadingState({
-                    loading: false,
-                    error: null,
+        const cancelHandler = runWithLifecycle(function (state) {
+            apiRequest(state.controller, `/search?word=${word}&start=${(page - 1) * count}&count=${count}`)
+                .then((response) => {
+                    if (response.status === 401)
+                        return Promise.reject(new Error(erorr401));
+                    else
+                        return response.json();
+                })
+                .then((data) => {
+                    if (state.canceled) return;
+                    console.log("data", data);
+                    updateState(data);
+                    updateLoadingState({
+                        loading: false,
+                        error: null,
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    updateLoadingState({
+                        loading: false,
+                        error: error.message,
+                    });
                 });
-            })
-            .catch((error) => {
-                console.error(error);
-                updateLoadingState({
-                    loading: false,
-                    error: error.message,
-                });
-            });
 
             document.addEventListener("click", globalClickListener);
         })
-        
+
         return () => {
             cancelHandler()
             document.removeEventListener("click", globalClickListener);
@@ -72,7 +72,7 @@ function List({ marked, word }) {
             console.log("notifyRefresh", refreshIndex);
             nextRefresh((refreshIndex || 0) + 1);
         }
-        
+
     };
     const notifyPageChange = (page) => {
         updatePage(page);

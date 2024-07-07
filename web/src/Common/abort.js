@@ -1,15 +1,29 @@
+/**
+ * @typedef AbortableTask
+ * @property {boolean} canceled
+ * @property {AbortController} controller
+ */
+
+/**
+ * 
+ * @param {(task: AbortableTask) => void} fun 
+ * @returns 
+ */
 function runWithLifecycle(fun) {
     const abortController = new AbortController()
 
-    let obj = {
+    /**
+     * @type {AbortableTask}
+     */
+    let state = {
         canceled: false,
-        abortController,
+        controller: abortController,
     };
     const cancel = () => {
-        obj.canceled = true;
+        state.canceled = true;
         abortController.abort(new Error("abort"))
     };
-    fun(obj);
+    fun(state);
     return cancel;
 }
 

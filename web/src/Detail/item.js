@@ -29,37 +29,38 @@ function Snippet({ item, marked, notifyRefresh }) {
     };
 
     useEffect(() => {
-        updateRender(parseMarkdown(marked, item.codeContent));
+        if (item.codeContent)
+            updateRender(parseMarkdown(marked, item.codeContent));
     }, [item.codeContent, marked]);
     const handleDelete = () => {
         apiRequest(new AbortController(), deleteHerf, {
             method: "POST",
         })
-        .then((response) => {
-            if (response.status === 200) {
-                return response.text();
-            } else {
-                return Promise.reject(
-                    new Error(response.status + " " + response.statusText),
-                );
-            }
-        })
-        .then((data) => {
-            iziToast.show({
-                title: data || "success",
-                color: "green",
-                position: "center",
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.text();
+                } else {
+                    return Promise.reject(
+                        new Error(response.status + " " + response.statusText),
+                    );
+                }
+            })
+            .then((data) => {
+                iziToast.show({
+                    title: data || "success",
+                    color: "green",
+                    position: "center",
+                });
+                notifyRefresh();
+            })
+            .catch((error) => {
+                console.error(error);
+                iziToast.show({
+                    title: error,
+                    color: "red",
+                    position: "center",
+                });
             });
-            notifyRefresh();
-        })
-        .catch((error) => {
-            console.error(error);
-            iziToast.show({
-                title: error,
-                color: "red",
-                position: "center",
-            });
-        });
     };
     return (
         <li className="list-group-item">

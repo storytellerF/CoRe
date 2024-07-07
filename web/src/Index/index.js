@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 function Index() {
     const h1 = useRef();
     const div = useRef();
-
     useEffect(() => {
         let timer = setTimeout(() => {
             const w = h1.current.clientWidth;

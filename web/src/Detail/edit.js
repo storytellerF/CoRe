@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./edit.css";
 import iziToast from "izitoast";
@@ -82,7 +82,7 @@ function Editor({ marked }) {
     useEffect(() => {
         return runWithLifecycle((state) => {
             if (id !== null) {
-                apiRequest(state.abortController, "/get?id=" + id)
+                apiRequest(state.controller, "/get?id=" + id)
                     .then((response) => {
                         if (response.ok) {
                             return response.json();
@@ -173,39 +173,39 @@ function Editor({ marked }) {
             method: "post",
             body: formData,
         })
-        .then((response) => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                return Promise.reject(new Error(response.status + " " + response.statusText));
-            }
-        })
-        .then((data) => {
-            if (id) {
-                iziToast.show({
-                    title: `success ${data}`,
-                    color: "green",
-                    position: "center",
-                });
-            } else if (data >= 0) {
-                navigate(`/edit?id=${data}`);
-                iziToast.show({
-                    title: `success ${data}`,
-                    color: "green",
-                    position: "center",
-                });
-            } else {
-                iziToast.show({
-                    title: data,
-                    color: "red",
-                    position: "center",
-                });
-            }
-        })
-        .catch((error) => {
-            console.log("error", error);
-            alertError(error)
-        });
+            .then((response) => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return Promise.reject(new Error(response.status + " " + response.statusText));
+                }
+            })
+            .then((data) => {
+                if (id) {
+                    iziToast.show({
+                        title: `success ${data}`,
+                        color: "green",
+                        position: "center",
+                    });
+                } else if (data >= 0) {
+                    navigate(`/edit?id=${data}`);
+                    iziToast.show({
+                        title: `success ${data}`,
+                        color: "green",
+                        position: "center",
+                    });
+                } else {
+                    iziToast.show({
+                        title: data,
+                        color: "red",
+                        position: "center",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log("error", error);
+                alertError(error)
+            });
     };
     useEffect(() => {
         if (!title || !content) return;

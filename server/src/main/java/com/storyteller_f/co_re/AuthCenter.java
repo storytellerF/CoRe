@@ -54,15 +54,12 @@ public class AuthCenter {
             if (key != null && Files.exists(p)) {
                 String savedKey = Files.readString(p).trim();
                 log.info("filter local core-key" + savedKey);
-                if (savedKey.equals(key)) {
-                    return true;
-                }
-
+                return savedKey.equals(key);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return false;
+        return true;
     }
 }

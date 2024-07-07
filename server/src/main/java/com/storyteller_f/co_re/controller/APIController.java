@@ -27,7 +27,7 @@ import com.storyteller_f.co_re.AuthCenter.AuthSession;
 @RestController
 @Slf4j
 public class APIController {
-    
+
     @Autowired
     LuceneService service;
 
@@ -36,17 +36,19 @@ public class APIController {
 
     /**
      * 添加document
-     * @param title snippt 的标题
+     * 
+     * @param title       snippt 的标题
      * @param codeContent snippet 的内容
      * @return 返回-3 代表出现了错误。否则返回addDocument 的结果
      */
     @PostMapping("/apis/add")
     public long add(String title, String codeContent) {
-        return service.save(title, codeContent);
+        return service.add(title, codeContent);
     }
 
     /**
      * 删除单个document
+     * 
      * @param id document 的id
      * @return 返回-2 代表出现了错误。否则返回tryDeleteDocument 的结果
      */
@@ -57,6 +59,7 @@ public class APIController {
 
     /**
      * 修改单个document，id 必须存在
+     * 
      * @param codeSnippet 新的内容
      * @return 如果返回-4，说明id == -1，如果返回-2，说明删除失败，如果返回-3，说明保存失败，其他代表编辑成功
      */
@@ -69,31 +72,34 @@ public class APIController {
         if (deleteResult < 0) {
             return deleteResult;
         }
-        return add(codeSnippet.getTitle(), codeSnippet.getCodeContent());
+        return add(codeSnippet.getTitle(), codeSnippet.getContent());
     }
 
     /**
      * 返回所有的snippet
+     * 
      * @param start 从0 开始
      * @param count 从start 开始查询多少个
      */
     @GetMapping("/apis/all")
     public Response<CodeSnippet> all(@RequestParam("start") int start, @RequestParam("count") int count) {
-        return service.all(start, count);
+        return service.search(null, start, count);
     }
 
     /**
-     * @param word 搜索的关键字。如果为空或者是null，等同于/all
+     * @param word  搜索的关键字。如果为空或者是null，等同于/all
      * @param start 从0 开始
      * @param count 从start 开始查询多少个
      */
     @GetMapping("/apis/search")
-    public Response<CodeSnippet> search(@RequestParam("word") String word, @RequestParam("start") int start, @RequestParam("count") int count) {
+    public Response<CodeSnippet> search(@RequestParam("word") String word, @RequestParam("start") int start,
+            @RequestParam("count") int count) {
         return service.search(word, start, count);
     }
 
     /**
      * 查询单个snippet
+     * 
      * @param id document 的id
      */
     @GetMapping("/apis/get")

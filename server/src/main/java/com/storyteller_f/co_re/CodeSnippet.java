@@ -7,6 +7,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
 import lombok.AllArgsConstructor;
@@ -18,25 +19,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CodeSnippet {
     private String title;
-    private String codeContent;
-    private Date time;
+    private String content;
+    private Date lastModifiedTime;
     private int id;
+    private String uuidString;
     public static final String titleKey = "title";
-    public static final String codeKey = "code";
-    public static final String timeKey = "time";
-
+    public static final String contentKey = "code";
+    public static final String lastModifiedTimeKey = "lastModified";
+    public static final String uuidKey = "uuid";
 
     public Document get() {
         Document document = new Document();
-        FieldType type = new FieldType();
-        type.setStored(true);
-        document.add(new StoredField(codeKey, codeContent, type));
+        document.add(new StoredField(contentKey, content));
         document.add(new TextField(titleKey, title, Field.Store.YES));
-        document.add(new LongPoint(timeKey, time.getTime()));
+        document.add(new StoredField(lastModifiedTimeKey, lastModifiedTime.getTime()));
+        document.add(new StringField(uuidKey, uuidString, Field.Store.YES));
         return document;
     }
 
     public static CodeSnippet from(Document document, int id) {
-        return new CodeSnippet(document.get(titleKey), document.get(codeKey), null, id);
+        String t = document.get(lastModifiedTimeKey);
+        Date time;
+        if (t != null) {
+            time = new Date(Long.parseLong(t));
+        } else {
+            time = null;
+        }
+        return new CodeSnippet(document.get(titleKey), document.get(contentKey), time, id, document.get(uuidKey));
     }
 }
