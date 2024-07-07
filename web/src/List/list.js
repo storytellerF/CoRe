@@ -1,14 +1,13 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import Snippet from "../Detail/item";
 import { Button, Container } from "reactstrap";
 import "izitoast/dist/css/iziToast.css";
 import { ConstantsContext } from "../Context/ConstantsContext";
 import Pagination from "./pagination";
 import { copyCodeBlock } from "../Common/code-parser";
-import { apiRequest } from "../Common/api";
-import runWithLifecycle from "../Common/abort";
+import { useApi } from "../Common/api";
 import { useNavigate } from "react-router-dom";
-
+import { Loading, Error } from "../Common/api";
 const globalClickListener = function (event) {
     const target = event.target;
     if (target.className.indexOf("copy-code-block") >= 0) {
@@ -17,56 +16,36 @@ const globalClickListener = function (event) {
 };
 
 function List({ marked, word }) {
-    const [state, updateState] = useState(null);
+    /**
+     * @type {[ServerResponse, React.Dispatch<React.SetStateAction<ServerResponse>>]}
+     */
+    const [content, updateContent] = useState(null);
     const [refreshIndex, nextRefresh] = useState(undefined);
-    const [loadingState, updateLoadingState] = useState(null);
+    /**
+     * @type {[import("../Common/api").LoadState, React.Dispatch<React.SetStateAction<import("../Common/api").LoadState>>]}
+     */
+    const [loadState, updateLoadState] = useState(undefined);
     const constants = useContext(ConstantsContext);
     const [page, updatePage] = useState(1);
     const navigate = useNavigate()
 
     const count = constants.MAX_ITEMS;
-    const erorr401 = "401 Unauthorized"
+    const url = useMemo(() => {
+        return `/search?word=${word}&start=${(page - 1) * count}&count=${count}`
+    }, [count, page, word])
+    const api = useApi(url, updateLoadState, updateContent)
     useEffect(() => {
-        updateLoadingState({
-            loading: true,
-            error: null,
-        });
-        const cancelHandler = runWithLifecycle(function (state) {
-            apiRequest(state.controller, `/search?word=${word}&start=${(page - 1) * count}&count=${count}`)
-                .then((response) => {
-                    if (response.status === 401)
-                        return Promise.reject(new Error(erorr401));
-                    else
-                        return response.json();
-                })
-                .then((data) => {
-                    if (state.canceled) return;
-                    console.log("data", data);
-                    updateState(data);
-                    updateLoadingState({
-                        loading: false,
-                        error: null,
-                    });
-                })
-                .catch((error) => {
-                    console.error(error);
-                    updateLoadingState({
-                        loading: false,
-                        error: error.message,
-                    });
-                });
-
-            document.addEventListener("click", globalClickListener);
-        })
-
+        return api()
+    }, [api, refreshIndex])
+    useEffect(() => {
+        document.addEventListener("click", globalClickListener);
         return () => {
-            cancelHandler()
             document.removeEventListener("click", globalClickListener);
         };
-    }, [refreshIndex, page, constants.API_BASE_URL, count, word]);
+    }, []);
 
     const notifyRefresh = () => {
-        if (loadingState.error === erorr401) {
+        if (loadState instanceof Error && loadState.isNotAuth()) {
             navigate("/login")
         } else {
             console.log("notifyRefresh", refreshIndex);
@@ -78,26 +57,26 @@ function List({ marked, word }) {
         updatePage(page);
     };
     let result;
-    if (loadingState == null) {
+    if (loadState === undefined) {
         result = (
             <div className="loading">
                 <p>初始化中</p>
             </div>
         );
-    } else if (loadingState.error != null) {
+    } else if (loadState instanceof Error) {
         result = (
             <div className="loading">
-                <p className="text-danger">{loadingState.error}</p>
-                <Button color="primary" onClick={notifyRefresh}>{loadingState.error === erorr401 ? "login" : "refresh"}</Button>
+                <p className="text-danger">{loadState.error}</p>
+                <Button color="primary" onClick={notifyRefresh}>{loadState.isNotAuth() ? "login" : "refresh"}</Button>
             </div>
         );
-    } else if (loadingState.loading || !state || !state.data) {
+    } else if (loadState instanceof Loading) {
         result = (
             <div className="loading">
                 <p>loading</p>
             </div>
         );
-    } else if (state.data.length === 0) {
+    } else if (content.data.length === 0) {
         result = (
             <div className="loading">
                 <p>empty</p>
@@ -107,7 +86,7 @@ function List({ marked, word }) {
             </div>
         );
     } else {
-        const list = state.data.map((element) => (
+        const list = content.data.map((element) => (
             <Snippet
                 item={element}
                 marked={marked}
@@ -133,7 +112,7 @@ function List({ marked, word }) {
 
                 <Pagination
                     currentPage={page}
-                    totalPages={Math.ceil(state.total / count)}
+                    totalPages={Math.ceil(content.total / count)}
                     onChangePage={notifyPageChange}
                 />
             </Container>
