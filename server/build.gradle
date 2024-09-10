@@ -8,6 +8,14 @@ group = 'com.storyteller_f'
 version = '0.0.5-SNAPSHOT'
 sourceCompatibility = '8'
 
+sourceSets {
+    main {
+        resources {
+            srcDir(layout.buildDirectory.dir("copied-ssl/resources"))
+        }
+    }
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -40,3 +48,12 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+task copySSL(type: Copy) {
+	group "copy"
+    from('../ssl')
+    into 'build/copied-ssl/resources/ssl'
+    exclude '**/root*.bak'
+}
+
+tasks.processResources.dependsOn(copySSL)
