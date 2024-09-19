@@ -48,7 +48,8 @@ public class AuthCenter {
     public boolean isLogin(HttpServletRequest request, Logger log) {
         try {
             String key = request.getHeader("Core-Key");
-            log.info("filter header " + key + " path " + request.getServletPath() + " method: " + request.getMethod());
+            log.info("filter header: " + key + ". path: " + request.getServletPath() + ". method: "
+                    + request.getMethod());
             String home = System.getProperty("user.home");
             Path p = new File(home, "core-key").toPath();
             if (key != null && Files.exists(p)) {

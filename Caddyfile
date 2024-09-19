@@ -1,0 +1,26 @@
+:80 {
+	# 代理所有 /api 路径到你的 API 服务
+	@api {
+		path /api/*
+	}
+	reverse_proxy @api http://server:8080
+
+	# 代理 WebSocket 请求（可选，若你的 API 使用 WebSocket）
+	@websocket {
+		header Connection *Upgrade*
+		header Upgrade websocket
+	}
+	reverse_proxy @websocket http://server:8080
+
+	# 只在没有匹配到任何其他路由时返回 index.html
+    @notApi {
+        not path /api/*
+        not header Connection *Upgrade*
+    }
+    handle @notApi {
+        try_files {path} /index.html
+    }
+
+    # 处理静态文件
+    file_server
+}

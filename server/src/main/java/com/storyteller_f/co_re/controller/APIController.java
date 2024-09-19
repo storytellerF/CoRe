@@ -41,7 +41,7 @@ public class APIController {
      * @param codeContent snippet 的内容
      * @return 返回-3 代表出现了错误。否则返回addDocument 的结果
      */
-    @PostMapping("/apis/add")
+    @PostMapping("/api/add")
     public long add(String title, String codeContent) {
         return service.add(title, codeContent);
     }
@@ -52,7 +52,7 @@ public class APIController {
      * @param id document 的id
      * @return 返回-2 代表出现了错误。否则返回tryDeleteDocument 的结果
      */
-    @PostMapping("/apis/delete")
+    @PostMapping("/api/delete")
     public long delete(int id) {
         return service.delete(id);
     }
@@ -63,7 +63,7 @@ public class APIController {
      * @param codeSnippet 新的内容
      * @return 如果返回-4，说明id == -1，如果返回-2，说明删除失败，如果返回-3，说明保存失败，其他代表编辑成功
      */
-    @PostMapping("/apis/edit")
+    @PostMapping("/api/edit")
     public long edit(CodeSnippet codeSnippet) {
         if (codeSnippet.getId() == -1) {
             return LuceneService.INVALID_ID_EXCEPTION;
@@ -81,7 +81,7 @@ public class APIController {
      * @param start 从0 开始
      * @param count 从start 开始查询多少个
      */
-    @GetMapping("/apis/all")
+    @GetMapping("/api/all")
     public Response<CodeSnippet> all(@RequestParam("start") int start, @RequestParam("count") int count) {
         return service.search(null, start, count);
     }
@@ -91,7 +91,7 @@ public class APIController {
      * @param start 从0 开始
      * @param count 从start 开始查询多少个
      */
-    @GetMapping("/apis/search")
+    @GetMapping("/api/search")
     public Response<CodeSnippet> search(@RequestParam("word") String word, @RequestParam("start") int start,
             @RequestParam("count") int count) {
         return service.search(word, start, count);
@@ -102,7 +102,7 @@ public class APIController {
      * 
      * @param id document 的id
      */
-    @GetMapping("/apis/get")
+    @GetMapping("/api/get")
     public CodeSnippet get(int id) {
         return service.get(id);
     }
@@ -115,6 +115,11 @@ public class APIController {
             session.setAttribute("key", s.returnedKey);
         }
         return s.returnedKey;
+    }
+
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong";
     }
 
     @Data

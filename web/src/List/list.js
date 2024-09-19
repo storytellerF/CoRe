@@ -29,7 +29,7 @@ function List({ marked, word }) {
     const [page, updatePage] = useState(1);
     const navigate = useNavigate()
 
-    const count = constants.MAX_ITEMS;
+    const count = constants.MAX_ITEM;
     const url = useMemo(() => {
         return `/search?word=${word}&start=${(page - 1) * count}&count=${count}`
     }, [count, page, word])

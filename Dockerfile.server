@@ -1,0 +1,19 @@
+# complie server
+FROM openjdk:17-jdk AS builder
+
+RUN microdnf install findutils
+
+WORKDIR /app
+
+COPY ./server .
+
+RUN sh prod.sh
+
+# pack
+FROM openjdk:17
+
+WORKDIR /app
+
+COPY --from=builder /app/build/output/*.jar .
+
+CMD java -jar *.jar --server.port=8080 --server.ssl.enabled=false

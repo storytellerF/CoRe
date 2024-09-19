@@ -1,0 +1,24 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "8187:8080"
+    networks:
+      - webnet
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - "8180:80"
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
