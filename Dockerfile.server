@@ -7,7 +7,8 @@ WORKDIR /app
 
 COPY ./server .
 
-RUN sh prod.sh
+RUN --mount=type=cache,target=/root/.gradle \
+    sh prod.sh
 
 # pack
 FROM openjdk:17
@@ -16,4 +17,5 @@ WORKDIR /app
 
 COPY --from=builder /app/build/output/*.jar .
 
+# 使用caddy 反向代理，不需要开启ssl
 CMD java -jar *.jar --server.port=8080 --server.ssl.enabled=false

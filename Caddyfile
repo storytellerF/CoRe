@@ -1,4 +1,6 @@
-:80 {
+:443 {
+	tls server.crt server.key
+
 	# 代理所有 /api 路径到你的 API 服务
 	@api {
 		path /api/*

@@ -6,7 +6,7 @@ distinguished_name = dn
 req_extensions     = req_ext
 
 [ dn ]
-CN = www.example.com
+CN = core.sf
 
 [ req_ext ]
 subjectAltName = @alt_names

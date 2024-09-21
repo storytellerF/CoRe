@@ -13,3 +13,5 @@ FROM caddy
 WORKDIR /app
 
 COPY --from=builder /app/build .
+
+COPY ./ssl .

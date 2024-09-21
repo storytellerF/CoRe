@@ -15,7 +15,7 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     ports:
-      - "8180:80"
+      - "8143:443"
     networks:
       - webnet
 
