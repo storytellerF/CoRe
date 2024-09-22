@@ -3,6 +3,7 @@ package com.storyteller_f.co_re.service;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -136,7 +137,7 @@ public class LuceneService {
                 query = new QueryParser(CodeSnippet.titleKey, analyzer).parse(search);
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                return new Response<>(new ArrayList<>(), start, 0);
             }
         }
         try {
@@ -146,7 +147,7 @@ public class LuceneService {
             });
         } catch (Throwable e) {
             e.printStackTrace();
-            return null;
+            return new Response<>(new ArrayList<>(), start, 0);
         }
     }
 
