@@ -42,7 +42,7 @@ export class Error extends LoadState {
     }
 
     isNotAuth() {
-        return this.message === erorr401
+        return this.error === erorr401
     }
 }
 
@@ -88,9 +88,9 @@ export function useApi(url, updateState, updateContent) {
                 updateContent(data);
                 updateState(new Loaded());
             })
-            .catch((error) => {
-                console.error(error);
-                updateState(new Error(error.message));
+            .catch((err) => {
+                console.error(err, typeof err);
+                updateState(new Error(err.error));
             });
 
     }), [url, updateState, updateContent])

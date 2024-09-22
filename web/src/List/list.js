@@ -70,7 +70,7 @@ function List({ marked, word }) {
                 <Button color="primary" onClick={notifyRefresh}>{loadState.isNotAuth() ? "login" : "refresh"}</Button>
             </div>
         );
-    } else if (loadState instanceof Loading) {
+    } else if (loadState instanceof Loading || content === null) {
         result = (
             <div className="loading">
                 <p>loading</p>

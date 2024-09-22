@@ -25,7 +25,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getMethod().equals("OPTIONS") || skipAuth) {
+        if (request.getMethod().equals("OPTIONS") || request.getServletPath().equals("/api/login") || skipAuth) {
             filterChain.doFilter(request, response);
             return;
         }
