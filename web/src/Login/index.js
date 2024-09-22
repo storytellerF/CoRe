@@ -12,7 +12,7 @@ function Login() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            let result = await fetch(constants.LOGIN_URL + "/login", {
+            let result = await fetch(constants.API_BASE_URL + "/login", {
                 method: "POST",
                 body: objectToForm({
                     password
@@ -31,24 +31,24 @@ function Login() {
                     position: "center"
                 })
             }
-            
+
         } catch (error) {
             iziToast.error({
                 title: error.message,
                 position: "center"
             })
         }
-        
+
     }
 
-    const handlePasswordChange = function(event) {
+    const handlePasswordChange = function (event) {
         updatePassword(event.target.value)
     }
 
     return <div className="login-container">
         <div>
             <form onSubmit={handleSubmit}>
-                <Input name="password" value={password} onChange={handlePasswordChange}/>
+                <Input name="password" value={password} onChange={handlePasswordChange} />
 
                 <Button color="primary" type="submit" id="submit">
                     登录

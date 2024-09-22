@@ -107,7 +107,7 @@ public class APIController {
         return service.get(id);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public String login(LoginTuple tuple, HttpServletRequest request) {
         AuthSession s = center.tryLogin(tuple, log);
         if (s.newCreated) {
