@@ -17,18 +17,40 @@
 
 ![mobile](mobile_demo.png)
 
-## 使用Docker
+## 使用
 
-创建镜像
-
-```shell
-$ docker build -t CoRe:1.0 .
-```
-
-启动镜像
+1. 创建根证书
 
 ```shell
-$ docker run -it -p 9000:8080 -v "{your path}:/root/CoRe/index" app.lucenePosition=/root/CoRe/index
-# 后面的参数是用来重新指定lucene 的所以文件存放位置，因为开发环境为Windows ，默认路径为`E:\测试\CoRe\index`,
-#可以根据自己的需要修改
+sh scripts/generate_root_ca.sh
 ```
+
+根证书会保存到 `~/ca`
+
+2. 创建服务器证书
+
+```shell
+sh scripts/generate_ca.sh
+```
+
+服务器证书会保存到ssl 目录中
+
+3. 使用docker-compose 部署
+
+```shell
+docker compose up -d
+#or
+docker compose up -d --build
+```
+
+## 开发
+
+开发环境不需要caddy，可以直接在本地运行
+
+```shell
+sh scripts/start-dev.sh
+```
+
+会同时打开服务端和客户端。
+
+> 推荐使用 dev container 开发
