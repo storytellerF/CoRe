@@ -145,10 +145,13 @@ public class LuceneService {
                 TopDocs result = seacher.search(query, start + count);
                 return readSnippet(seacher, result, start, count);
             });
+        } catch (IndexNotFoundException e) {
+            System.err.println("index not init");
         } catch (Throwable e) {
             e.printStackTrace();
-            return new Response<>(new ArrayList<>(), start, 0);
         }
+        return new Response<>(new ArrayList<>(), start, 0);
+
     }
 
     /**

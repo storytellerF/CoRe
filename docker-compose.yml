@@ -5,6 +5,9 @@ services:
       dockerfile: Dockerfile.server
     ports:
       - "8187:8080"
+    volumes:
+      - ~/core-key:/root/core-key
+      - ~/core-password:/root/core-password
     networks:
       - webnet
 
