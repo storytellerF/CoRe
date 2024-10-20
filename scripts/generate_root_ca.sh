@@ -1,4 +1,4 @@
-mkdir ~/ca -p
+mkdir -p ~/ca
 # 生成根私钥
 openssl genrsa -out ~/ca/rootCA.key 4096
 
